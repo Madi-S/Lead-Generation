@@ -1,0 +1,5 @@
+button_xpath = '//*[@class="iRxY3GoUYUY__button gm2-hairline-border section-action-chip-button"]'
+search_xpath = '//*[@role="gridcell"]'
+# wait_xpath = '//*[@jstcache="1098"]'
+next_xpath = '//*[contains(@src, "chevron_right_black_24dp.png")]'
+check_xpath = '//*[@src="//www.gstatic.com/images/icons/material/system_gm/2x/share_gm_blue_18dp.png"]'

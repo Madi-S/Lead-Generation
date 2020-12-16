@@ -8,55 +8,13 @@ from fake_useragent import UserAgent
 from pyppeteer import launch
 from time import sleep
 
+from locators import *
+from config import *
+from bufferization import Buffer
 
-google_maps = 'https://www.google.ru/maps'
 ua = UserAgent()
 
-button_xpath = '//*[@class="iRxY3GoUYUY__button gm2-hairline-border section-action-chip-button"]'
-search_xpath = '//*[@role="gridcell"]'
-wait_xpath = '//*[@jstcache="1098"]'
-next_xpath = '//*[contains(@src, "chevron_right_black_24dp.png")]'
 
-
-order = {
-    'Title': None,
-    'Address': re.compile(r'(place_gm_blue_24dp.png)'),
-    'WebSite': re.compile(r'(public_gm_blue_24dp.png)'),
-    'PhoneNumber': re.compile(r'(phone_gm_blue_24dp.png)')
-}
-
-
-class Buffer:
-    lower_limit = 20
-    upper_limit = 201
-    fn = list(order.keys())
-
-    def __init__(self, filename: str = 'leads.csv', buffer_size: int = 20):
-        if not filename.endswith('.csv'):
-            raise ValueError(
-                'Incorrect filename specified. Filename should end with `.csv`')
-        if not buffer_size in range(self.lower_limit, self.upper_limit):
-            raise ValueError(
-                f'Expected value between {self.upper_limit} and {self.upper_limit}. However, got {buffer_size}')
-
-        self._buffer_size = buffer_size
-        self._filename = filename
-        self._data = []
-
-        with open(self._filename, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=self.fn)
-            writer.writeheader()
-
-    def _dump(self):
-        with open('leads.csv', 'a', encoding='utf-8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=self.fn)
-            for d in self._data:
-                writer.writerow(d)
-
-    def __iadd__(self, other: dict):
-        self._data.append(dict)
-        if self._data >= self._buffer_size:
-            self._dump()
 
 
 class Webdriver:
@@ -73,6 +31,10 @@ class Webdriver:
             autoclose=True,
         )
 
+    async def _shut_browser(self):
+        await self.page.close()
+        await self.browser.close()
+
     async def search(self, location=None, keyword=None, url=None):
         if location and keyword and not url:
             print(
@@ -85,14 +47,12 @@ class Webdriver:
             self._url = url
             await self._jump()
         else:
+            await self._shut_browser()
             raise ValueError(
                 f'Specify location and keyword. Otherwise, specify URL only. Got location {location}, keyword {keyword} and URL {url}')
 
         await self.scrape()
-
-        sleep(100)
-        await self.page.close()
-        await self.browser.close()
+        await self._shut_browser()
 
     async def _enter(self, word):
         await self.page.keyboard.type(word)
@@ -116,7 +76,13 @@ class Webdriver:
         await self._enter(self._keyword)
 
     async def _jump(self):
-        await self.page.goto(self._url)
+        try:
+            await self.page.goto(self._url)
+            print('Checking the given URL')
+            self.page.waitForXPath(check_xpath)
+        except:
+            await self._shut_browser()
+            raise ValueError('Got invalid URL for google maps')
 
     async def scrape(self):
         next_button = True
@@ -163,7 +129,7 @@ class Webdriver:
             try:
                 if src:
                     value = soup.find(
-                        attrs={'src': src}).parent.parent.parent.text.strip()
+                        attrs={'src': re.compile(src)}).parent.parent.parent.text.strip()
                 else:
                     value = soup.select('h1')[0].text.strip()
             except:
