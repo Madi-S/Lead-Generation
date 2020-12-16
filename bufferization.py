@@ -29,8 +29,11 @@ class Buffer:
             writer = csv.DictWriter(f, fieldnames=self.fn)
             for d in self._data:
                 writer.writerow(d)
+        
 
     def __iadd__(self, other: dict):
+        print('In here!')
         self._data.append(dict)
-        if self._data >= self._buffer_size:
+        if len(self._data) >= self._buffer_size:
             self._dump()
+            self._data.clear()

@@ -15,21 +15,25 @@ from bufferization import Buffer
 ua = UserAgent()
 
 
-
-
 class Webdriver:
     viewport = {'width': 1920, 'height': 1080, 'deviceScaleFactor': 1.0,
                 'isMobile': False, 'hasTouch': False, 'isLandscape': False}
 
-    buffer = Buffer()
+    buf = Buffer()
 
-    async def init_browser(self):
+    async def init_browser(self, language):
         self.browser = await launch(
             ignoreHTTPSErrors=True,
             headless=False,
             # slowMo=30,
             autoclose=True,
         )
+        self.page = (await self.browser.pages())[0]
+
+        # await self.page.setViewport(self.viewport)
+        await self.page.setUserAgent(ua.random)
+        await self.page.setExtraHTTPHeaders({'Accept-Language': 'en-us'})
+        await self.page.reload()
 
     async def _shut_browser(self):
         await self.page.close()
@@ -38,18 +42,18 @@ class Webdriver:
     async def search(self, location=None, keyword=None, url=None):
         if location and keyword and not url:
             print(
-                f'Working based on location {location} and keyword {keyword}')
+                f'Working based on location `{location}` and keyword `{keyword}`')
             self._location = location
             self._keyword = keyword
             await self._locate()
         elif not (location and keyword) and url:
-            print(f'Working based on given URL {url}')
+            print(f'Working based on given URL `{url}`')
             self._url = url
             await self._jump()
         else:
             await self._shut_browser()
             raise ValueError(
-                f'Specify location and keyword. Otherwise, specify URL only. Got location {location}, keyword {keyword} and URL {url}')
+                f'Specify location and keyword. Otherwise, specify URL only. Got location `{location}`, keyword `{keyword}` and URL `{url}`')
 
         await self.scrape()
         await self._shut_browser()
@@ -59,11 +63,6 @@ class Webdriver:
         await self.page.keyboard.press('Enter')
 
     async def _locate(self):
-        self.page = (await self.browser.pages())[0]
-
-        # await self.page.setViewport(self.viewport)
-        await self.page.setUserAgent(ua.random)
-        await self.page.reload()
         await self.page.goto(google_maps)
 
         await self._enter(self._location)
@@ -104,9 +103,11 @@ class Webdriver:
 
                 await element.click()
                 await self.page.waitForNavigation()
+                sleep(1.5)
 
                 data = self.extract(await self.page.content())
-                buffer += data
+                print(self.buf._data)
+                self.buf += data
 
                 # await asyncio.wait([
                 #     self.page.goto(home),
