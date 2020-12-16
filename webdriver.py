@@ -15,6 +15,7 @@ ua = UserAgent()
 button_xpath = '//*[@class="iRxY3GoUYUY__button gm2-hairline-border section-action-chip-button"]'
 search_xpath = '//*[@role="gridcell"]'
 wait_xpath = '//*[@jstcache="1098"]'
+next_xpath = '//*[contains(@src, "chevron_right_black_24dp.png")]'
 
 
 class Webdriver:
@@ -29,7 +30,7 @@ class Webdriver:
     viewport = {'width': 1920, 'height': 1080, 'deviceScaleFactor': 1.0,
                 'isMobile': False, 'hasTouch': False, 'isLandscape': False}
 
-    def __init__(self, filename='leads.csv'):
+    def __init__(self, filename='leads.csv',newline=''):
         if not filename.endswith('.csv'):
             raise ValueError(
                 'Incorrect filename specified. Filename should end with `.csv`')
@@ -54,7 +55,7 @@ class Webdriver:
 
         self.page = (await self.browser.pages())[0]
 
-        await self.page.setViewport(self.viewport)
+        # await self.page.setViewport(self.viewport)
         await self.page.setUserAgent(ua.random)
         await self.page.reload()
         await self.page.goto(URL)
@@ -75,31 +76,40 @@ class Webdriver:
         await self.browser.close()
 
     async def scrape(self):
-        await self.page.waitForSelector('.section-result-content')
+        next_button = True
+        while next_button:
+            await self.page.waitForSelector('.section-result-content')
 
-        home = self.page.url
-        overall = len(await self.page.querySelectorAll('.section-result-content'))
+            home = self.page.url
+            overall = len(await self.page.querySelectorAll('.section-result-content'))
+            print(f'Overall found {overall}')
 
-        for i in range(overall):
-            element = (await self.page.querySelectorAll('.section-result-content'))[i]
+            for i in range(overall):
+                print(f'Gonna scrape {i} out of {overall}')
+                element = (await self.page.querySelectorAll('.section-result-content'))[i]
 
-            await asyncio.wait([
-                element.click(),
-                self.page.waitForNavigation()
-            ])
+                #await asyncio.wait([
+                #    element.click(),
+                #    self.page.waitForNavigation()
+                #])
 
-            print('I am on the page')
-            sleep(2)
-            data = self.extract(await self.page.content())
-            self.store(data)
+                await element.click()
+                await self.page.waitForNavigation()
 
-            await asyncio.wait([
-                self.page.goto(home),
-                self.page.waitForNavigation()
-            ])
+                data = self.extract(await self.page.content())
+                self.store(data)
 
-            sleep(2)
-            print('I am back')
+                # await asyncio.wait([
+                #     self.page.goto(home),
+                #     self.page.waitForNavigation()
+                # ])
+
+                await self.page.goto(home)
+                await self.page.waitForNavigation()
+                sleep(1.5)
+
+            next_button = (await self.page.xpath(next_xpath))[0]
+            await next_button.click()
 
     def extract(self, html):
         soup = BeautifulSoup(html, 'lxml')
