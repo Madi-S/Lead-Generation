@@ -26,6 +26,9 @@ class Webdriver:
         'PhoneNumber': re.compile(r'(phone_gm_blue_24dp.png)')
     }
 
+    viewport = {'width': 1920, 'height': 1080, 'deviceScaleFactor': 1.0,
+                'isMobile': False, 'hasTouch': False, 'isLandscape': False}
+
     def __init__(self, filename='leads.csv'):
         if not filename.endswith('.csv'):
             raise ValueError(
@@ -51,7 +54,7 @@ class Webdriver:
 
         self.page = (await self.browser.pages())[0]
 
-        await self.page.setViewport({'width': 1920, 'height': 1080})
+        await self.page.setViewport(self.viewport)
         await self.page.setUserAgent(ua.random)
         await self.page.reload()
         await self.page.goto(URL)
@@ -74,6 +77,7 @@ class Webdriver:
     async def scrape(self):
         await self.page.waitForSelector('.section-result-content')
 
+        home = self.page.url
         overall = len(await self.page.querySelectorAll('.section-result-content'))
 
         for i in range(overall):
@@ -85,16 +89,16 @@ class Webdriver:
             ])
 
             print('I am on the page')
-            sleep(5)
+            sleep(2)
             data = self.extract(await self.page.content())
             self.store(data)
 
             await asyncio.wait([
-                self.page.goBack(),
+                self.page.goto(home),
                 self.page.waitForNavigation()
             ])
 
-            sleep(5)
+            sleep(2)
             print('I am back')
 
     def extract(self, html):
