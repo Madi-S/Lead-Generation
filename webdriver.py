@@ -11,10 +11,10 @@ from time import sleep
 
 URL = 'https://www.google.ru/maps'
 ua = UserAgent()
-css_selector = '.section-action-chip-button:nth-of-type(3)'  # third button
-css_parent = '.section-layout-justify-space-between:nth-child(3) .section-action-chip-button'
-# section-layout section-layout-justify-space-between section-layout-flex-vertical section-layout-flex-horizontal
-xpath = '//*[@id="pane"]/div/div[1]/div/div/div[5]/div[3]/div/button'
+
+button_xpath = '//*[@class="iRxY3GoUYUY__button gm2-hairline-border section-action-chip-button"]'
+search_xpath = '//*[@role="gridcell"]'
+wait_xpath = '//*[@jstcache="1098"]'
 
 
 class Webdriver:
@@ -35,45 +35,69 @@ class Webdriver:
             writer = csv.DictWriter(f, fieldnames=list(self.order.keys()))
             writer.writeheader()
 
-        # self.browser = await launch(
-        #    ignoreHTTPSErrors=True,
-        #    headless=False,
-        #    # slowMo=300,
-        #    # userDatadir='C:\\Users\\khova\\AppData\\Local\\Google\\Chrome\\User Data',
-        #    # autoclose=False,
-        # )
+    async def init_browser(self):
+        self.browser = await launch(
+            ignoreHTTPSErrors=True,
+            headless=False,
+            # slowMo=30,
+            autoclose=True,
+        )
+        # self.browser.setUserAgent(ua.random)
 
-    async def locate(self, city, keyword):
-        self.page = await self.browser.newPage()
+    async def locate(self, location, keyword):
+        async def enter(word):
+            await self.page.keyboard.type(word)
+            await self.page.keyboard.press('Enter')
 
+        self.page = (await self.browser.pages())[0]
+
+        await self.page.setViewport({'width': 1920, 'height': 1080})
         await self.page.setUserAgent(ua.random)
+        await self.page.reload()
         await self.page.goto(URL)
 
-        await self.page.keyboard.type(city)
-        await self.page.keyboard.press('Enter')
+        await enter(location)
 
-        await self.page.waitForXPath(xpath)
-        button = await self.page.xpath(xpath)[0]
+        await self.page.waitForXPath(button_xpath)
+        button = (await self.page.xpath(button_xpath))[2]
         await button.click()
 
-        # sleep(100)
-        # await self.page.close()
-        # await browser.close()
+        await self.page.waitForXPath(search_xpath)
+        await enter(keyword)
+
+        await self.scrape()
+
+        sleep(100)
+        await self.page.close()
+        await self.browser.close()
 
     async def scrape(self):
-        elements = await self.page.querySelectorEval('.section-result-content')
-        while elements:
-            element = elements.pop()
+        await self.page.waitForSelector('.section-result-content')
+
+        overall = len(await self.page.querySelectorAll('.section-result-content'))
+
+        for i in range(overall):
+            element = (await self.page.querySelectorAll('.section-result-content'))[i]
 
             await asyncio.wait([
                 element.click(),
                 self.page.waitForNavigation()
             ])
 
+            print('I am on the page')
+            sleep(5)
             data = self.extract(await self.page.content())
             self.store(data)
 
-    def extract(self, html=open('test.html', encoding='utf-8')):
+            await asyncio.wait([
+                self.page.goBack(),
+                self.page.waitForNavigation()
+            ])
+
+            sleep(5)
+            print('I am back')
+
+    def extract(self, html):
         soup = BeautifulSoup(html, 'lxml')
 
         # info = soup.select_one('.ugiz4pqJLAG__primary-text gm2-body-2')
@@ -95,14 +119,15 @@ class Webdriver:
         return data
 
     def store(self, data):
-        with open('leads.csv', 'a', encoding='utf-8') as csv_file:
-            csv_file.write(data)
+        with open('leads.csv', 'a', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=list(self.order.keys()))
+            writer.writerow(data)
 
 
 async def main():
     w = Webdriver()
-    w.extract()
-    # await w.locate('Moscow', 'Night clubs')
+    await w.init_browser()
+    await w.locate('Moscow', 'Cafe')
 
 
 asyncio.run(main())
