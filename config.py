@@ -1,5 +1,3 @@
-
-
 google_maps = 'https://www.google.ru/maps'
 
 order = {

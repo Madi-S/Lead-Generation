@@ -10,9 +10,12 @@ from time import sleep
 
 from locators import *
 from config import *
+from logger_config import get_logger
 from bufferization import Buffer
 
+
 ua = UserAgent()
+logger = get_logger('driver')
 
 
 class Webdriver:
@@ -36,6 +39,7 @@ class Webdriver:
         await self.page.reload()
 
     async def _shut_browser(self):
+        await asyncio.sleep(50)
         await self.page.close()
         await self.browser.close()
 
@@ -64,19 +68,20 @@ class Webdriver:
             await self.page.keyboard.press('Enter')
 
         await self.page.goto(google_maps)
+        await self.page.click('input')
         await _enter(self._location)
 
-        await self.page.waitForXPath(button_xpath)
+        await self.page.waitForXPath(button_xpath, {'visible': True})
         await (await self.page.xpath(button_xpath))[2].click()
-
         await self.page.waitForXPath(search_xpath)
+        await self.page.click('input')
         await _enter(self._keyword)
 
     async def _jump(self):
         try:
             await self.page.goto(self._url)
             print('Checking the given URL')
-            self.page.waitForXPath(check_xpath)
+            self.page.waitForXPath(check_xpath, {'visible': True})
         except:
             await self._shut_browser()
             raise ValueError('Got invalid URL for google maps')
@@ -84,42 +89,36 @@ class Webdriver:
     async def _scrape(self):
         next_button = True
         while next_button:
-            await self.page.waitForSelector('.section-result-content')
+            await self.page.waitForSelector(result_css, {'visible': True})
 
             home = self.page.url
-            overall = len(await self.page.querySelectorAll('.section-result-content'))
+            overall = len(await self.page.querySelectorAll(result_css))
             print(f'Overall found {overall}')
 
             for i in range(overall):
                 print(f'Gonna scrape {i} out of {overall}')
-                element = (await self.page.querySelectorAll('.section-result-content'))[i]
+                element = (await self.page.querySelectorAll(result_css))[i]
 
-                # await asyncio.wait([
-                #    element.click(),
-                #    self.page.waitForNavigation()
-                # ])
+                await asyncio.wait([
+                    element.click(),
+                    self.page.waitForNavigation()
+                ])
+                sleep(0.5)
 
-                await element.click()
-                await self.page.waitForNavigation()
-                sleep(0.7)
-
-                data = self.extract(await self.page.content())
+                data = self._extract(await self.page.content())
                 self.buf.store(data)
 
-                # await asyncio.wait([
-                #     self.page.goto(home),
-                #     self.page.waitForNavigation()
-                # ])
-
-                await self.page.goto(home)
-                await self.page.waitForNavigation()
-                sleep(0.7)
+                await asyncio.wait([
+                    self.page.goto(home),
+                    self.page.waitForNavigation()
+                ])
+                sleep(0.5)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
 
-    def extract(self, html):
-        soup = BeautifulSoup(html, 'lxml')
+    def _extract(self, html):
+        soup = BeautifulSoup(html, 'html.parser')
 
         data = {}
 
@@ -129,7 +128,7 @@ class Webdriver:
                     value = soup.find(
                         attrs={'src': re.compile(src)}).parent.parent.parent.text.strip()
                 else:
-                    value = soup.select('h1')[0].text.strip()
+                    value = soup.find('h1').text.strip()
             except:
                 value = None
             data.update({field: value})
@@ -137,11 +136,14 @@ class Webdriver:
         print(data)
         return data
 
+    async def _scrape_pages(self):
+        pass
+
 
 async def main():
     w = Webdriver()
     await w.init_browser()
-    await w.search('Calgary', 'Thai food')
+    await w.search('Кокшетау', 'Спортзал')
 
 
 asyncio.run(main())
