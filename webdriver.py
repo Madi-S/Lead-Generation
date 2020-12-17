@@ -5,6 +5,7 @@ import re
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from pyppeteer import launch
+from retry import *
 from time import sleep
 
 from locators import *
@@ -102,13 +103,12 @@ class Webdriver:
                 place = (await self.page.querySelectorAll(result_css))[i]
 
                 await place.click()
-                sleep(0.7)
+                sleep(0.8)
 
                 data = self._extract(await self.page.content())
                 self._buf.store(data)
 
                 await self.page.goto(home)
-                sleep(0.7)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
