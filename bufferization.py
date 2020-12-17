@@ -31,9 +31,10 @@ class Buffer:
                 writer.writerow(d)
         
 
-    def __iadd__(self, other: dict):
-        print('In here!')
-        self._data.append(dict)
-        if len(self._data) >= self._buffer_size:
-            self._dump()
-            self._data.clear()
+    def store(self, info: dict):
+        if info.get('Title') and not info in self._data: 
+            self._data.append(info)
+            if len(self._data) >= self._buffer_size:
+                self._dump()
+                self._data.clear()
+        print(f'Got duplicate or empty dictionary {info}')

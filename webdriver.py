@@ -21,7 +21,7 @@ class Webdriver:
 
     buf = Buffer()
 
-    async def init_browser(self, language):
+    async def init_browser(self, language='ru'):
         self.browser = await launch(
             ignoreHTTPSErrors=True,
             headless=False,
@@ -32,7 +32,7 @@ class Webdriver:
 
         # await self.page.setViewport(self.viewport)
         await self.page.setUserAgent(ua.random)
-        await self.page.setExtraHTTPHeaders({'Accept-Language': 'en-us'})
+        await self.page.setExtraHTTPHeaders({'Accept-Language': language})
         await self.page.reload()
 
     async def _shut_browser(self):
@@ -55,24 +55,22 @@ class Webdriver:
             raise ValueError(
                 f'Specify location and keyword. Otherwise, specify URL only. Got location `{location}`, keyword `{keyword}` and URL `{url}`')
 
-        await self.scrape()
+        await self._scrape()
         await self._shut_browser()
 
-    async def _enter(self, word):
-        await self.page.keyboard.type(word)
-        await self.page.keyboard.press('Enter')
-
     async def _locate(self):
-        await self.page.goto(google_maps)
+        async def _enter(word):
+            await self.page.keyboard.type(word)
+            await self.page.keyboard.press('Enter')
 
-        await self._enter(self._location)
+        await self.page.goto(google_maps)
+        await _enter(self._location)
 
         await self.page.waitForXPath(button_xpath)
-        button = (await self.page.xpath(button_xpath))[2]
-        await button.click()
+        await (await self.page.xpath(button_xpath))[2].click()
 
         await self.page.waitForXPath(search_xpath)
-        await self._enter(self._keyword)
+        await _enter(self._keyword)
 
     async def _jump(self):
         try:
@@ -83,7 +81,7 @@ class Webdriver:
             await self._shut_browser()
             raise ValueError('Got invalid URL for google maps')
 
-    async def scrape(self):
+    async def _scrape(self):
         next_button = True
         while next_button:
             await self.page.waitForSelector('.section-result-content')
@@ -103,11 +101,10 @@ class Webdriver:
 
                 await element.click()
                 await self.page.waitForNavigation()
-                sleep(1.5)
+                sleep(0.7)
 
                 data = self.extract(await self.page.content())
-                print(self.buf._data)
-                self.buf += data
+                self.buf.store(data)
 
                 # await asyncio.wait([
                 #     self.page.goto(home),
@@ -116,7 +113,7 @@ class Webdriver:
 
                 await self.page.goto(home)
                 await self.page.waitForNavigation()
-                sleep(1.5)
+                sleep(0.7)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
