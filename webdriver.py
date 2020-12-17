@@ -1,11 +1,13 @@
 import asyncio
+import pyppeteer
 
 import re
+
 
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from pyppeteer import launch
-from retry import *
+from driver_retry import *
 from time import sleep
 
 from locators import *
@@ -28,6 +30,7 @@ class Webdriver:
             headless=False,
             # slowMo=30,
             autoclose=True,
+            args=['--start-maximized']
         )
         self.page = (await self.browser.pages())[0]
 
@@ -43,7 +46,8 @@ class Webdriver:
 
     async def search(self, location=None, keyword=None, url=None):
         if location and keyword and not url:
-            logger.debug('Working based on location `%s` and keyword `%s`', location, keyword)
+            logger.debug(
+                'Working based on location `%s` and keyword `%s`', location, keyword)
             self._location = location
             self._keyword = keyword
             await self._locate()
@@ -83,32 +87,57 @@ class Webdriver:
             await self._shut_browser()
             raise ValueError('Got invalid URL for google maps')
 
-    async def _scrape(self):
-        async def wait_for_result():
-            await self.page.waitForSelector(result_css, {'visible': True})
+    async def _retry_click(self, element, xpath, retries=0):
+        if retries == 10:
+            raise SystemError(
+                'Max 10 retries exceeded when clicking the place')
+        try:
+            await element.click()
+            await self.page.waitForXPath(xpath, {'visible': True})
+            print('Returned here')
+            sleep(0.7)
+            return
 
+        except pyppeteer.errors.TimeoutError:
+            self._retry_click(xpath, element, retries + 1)
+            print('Timeout')
+
+        else:
+            logger.critical('Some shit happened to pyppeteer, fix it')
+            print('Critical')
+
+    async def _scrape(self):
         next_button = True
 
         while next_button:
 
-            await wait_for_result()
+            await self.page.waitForXPath(result_xpath, {'visible': True})
 
             home = self.page.url
-            places = len(await self.page.querySelectorAll(result_css))
+            places = len(await self.page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
             for i in range(places):
-                logger.debug('Gonna scrape %s out of %s', i, places)
-                await wait_for_result()
-                place = (await self.page.querySelectorAll(result_css))[i]
 
-                await place.click()
-                sleep(0.8)
+                logger.debug('Gonna scrape %s out of %s', i, places)
+                await self.page.waitForXPath(result_xpath, {'visible': True})
+
+                place = (await self.page.xpath(result_xpath))[i]
+                self._retry_click(place, place_xpath)
+                #try:
+                #    await place.click()
+                #    await self.page.waitForXPath(place_xpath)
+                #    sleep(0.7)
+                #except:
+                #    await place.click()
+                #    await self.page.waitForXPath(place_xpath)
+                #    sleep(0.7)
 
                 data = self._extract(await self.page.content())
                 self._buf.store(data)
 
                 await self.page.goto(home)
+                sleep(0.7)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
