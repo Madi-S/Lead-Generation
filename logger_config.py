@@ -10,7 +10,7 @@ def get_logger(name: str):
         s_handler = logging.StreamHandler()
         s_handler.setLevel(logging.DEBUG)
 
-        f_handler = logging.FileHandler('yt_bot.log', 'a')
+        f_handler = logging.FileHandler('pylg.log', 'a')
         f_handler.setLevel(logging.WARNING)
 
         handlers = [s_handler, f_handler]
