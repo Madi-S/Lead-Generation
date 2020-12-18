@@ -19,7 +19,7 @@ logger = get_logger('webdriver')
 
 class Webdriver:
     viewport = {'width': 1920, 'height': 1080, 'deviceScaleFactor': 1.0,
-                'isMobile': False, 'hasTouch': False, 'isLandscape': False}
+                'isMobile': False, 'hasTouch': False, 'isLandscape': False, 'isMobile': True}
     _ua = UserAgent()
     _buf = Buffer()
 
@@ -34,6 +34,7 @@ class Webdriver:
         self.page = (await self.browser.pages())[0]
 
         await self.page.setUserAgent(self._ua.random)
+        await self.page.setViewport(self.viewport)
         await self.page.setExtraHTTPHeaders({'Accept-Language': language})
         await self.page.reload()
 
@@ -108,8 +109,6 @@ class Webdriver:
 
     async def _scrape(self):
         while True:
-
-            # home = self.page.url
             places = len(await self.page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
@@ -122,19 +121,13 @@ class Webdriver:
                 data = self._extract(await self.page.content())
                 self._buf.store(data)
 
-                await self._do_retry(self.page.goBack, result_xpath)
+                back = (await self.page.xpath(back_xpath))[0]
+                await self._do_retry(back.click, result_xpath)
+                # await self._do_retry(self.page.goBack, result_xpath)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
-            print('Clicked')
-            sleep(3)
-
-            # if next_button:
-            #     await self._do_retry(next_button.click, result_xpath)
-            #     logger.debug('Going to the next page')
-            # else:
-            #     logger.debug('Done with Google Maps')
-            #     break
+            sleep(1)
 
     def _extract(self, html):
         soup = BeautifulSoup(html, 'html.parser')
@@ -164,8 +157,8 @@ class Webdriver:
 
 async def main():
     w = Webdriver()
-    await w.init_browser()
-    await w.search('Memphis, Tennessee', 'Loan officers')
+    await w.init_browser('ru')
+    await w.search('Norwich', 'Asian restraunt')
 
 if __name__ == '__main__':
     asyncio.run(main())
