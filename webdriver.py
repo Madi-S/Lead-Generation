@@ -11,7 +11,7 @@ from driver_retry import *
 from time import sleep
 
 from locators import *
-from config import *
+from my_config import *
 from logger_config import get_logger
 from bufferization import Buffer
 
@@ -91,20 +91,18 @@ class Webdriver:
         if retries == 10:
             raise SystemError(
                 'Max 10 retries exceeded when clicking the place')
-        try:
-            await element.click()
-            await self.page.waitForXPath(xpath, {'visible': True})
-            print('Returned here')
-            sleep(0.7)
-            return
-
-        except pyppeteer.errors.TimeoutError:
-            self._retry_click(xpath, element, retries + 1)
-            print('Timeout')
-
         else:
-            logger.critical('Some shit happened to pyppeteer, fix it')
-            print('Critical')
+            try:
+                await element.click()
+                await self.page.waitForXPath(xpath, {'visible': True})
+                sleep(0.7)
+                return
+
+            except pyppeteer.errors.TimeoutError:
+                self._retry_click(xpath, element, retries + 1)
+
+            else:
+                raise SystemError('Some shit happened to pyppeteer, fix it')
 
     async def _scrape(self):
         next_button = True
@@ -117,28 +115,21 @@ class Webdriver:
             places = len(await self.page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
-            for i in range(places):
+            #for i in range(places):
+#
+            #    logger.debug('Gonna scrape %s out of %s', i + 1, places)
+            #    await self.page.waitForXPath(result_xpath, {'visible': True})
+#
+            #    place = (await self.page.xpath(result_xpath))[i]
+            #    await self._retry_click(place, place_xpath)
+#
+            #    data = self._extract(await self.page.content())
+            #    self._buf.store(data)
+#
+            #    await self.page.goto(home)
+            #    sleep(0.7)
 
-                logger.debug('Gonna scrape %s out of %s', i, places)
-                await self.page.waitForXPath(result_xpath, {'visible': True})
-
-                place = (await self.page.xpath(result_xpath))[i]
-                self._retry_click(place, place_xpath)
-                #try:
-                #    await place.click()
-                #    await self.page.waitForXPath(place_xpath)
-                #    sleep(0.7)
-                #except:
-                #    await place.click()
-                #    await self.page.waitForXPath(place_xpath)
-                #    sleep(0.7)
-
-                data = self._extract(await self.page.content())
-                self._buf.store(data)
-
-                await self.page.goto(home)
-                sleep(0.7)
-
+            logger.debug('Going to the next page')
             next_button = (await self.page.xpath(next_xpath))[0]
             await next_button.click()
 
@@ -170,5 +161,5 @@ async def main():
     await w.init_browser()
     await w.search('Кокшетау', 'Спортзал')
 
-
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

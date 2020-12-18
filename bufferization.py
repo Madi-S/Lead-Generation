@@ -1,14 +1,14 @@
 import csv
 
-from config import order
+from my_config import order
 
 
 class Buffer:
-    lower_limit = 20
+    lower_limit = 10
     upper_limit = 201
     fn = list(order.keys())
 
-    def __init__(self, filename: str = 'leads.csv', buffer_size: int = 20):
+    def __init__(self, filename: str = 'leads.csv', buffer_size: int = 15):
         if not filename.endswith('.csv'):
             raise ValueError(
                 'Incorrect filename specified. Filename should end with `.csv`')
