@@ -101,7 +101,7 @@ class Webdriver:
             await self.page.waitForXPath(xpath, {'visible': True})
             sleep(1)
         except pyppeteer.errors.TimeoutError:
-            self._do_retry(operation, xpath, dest, retries + 1)
+            await self._do_retry(operation, xpath, dest, retries + 1)
         except Exception as e:
             print(e)
             raise SystemError('Some shit happened to pyppeteer, fix it')
@@ -109,7 +109,7 @@ class Webdriver:
     async def _scrape(self):
         while True:
 
-            home = self.page.url
+            # home = self.page.url
             places = len(await self.page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
@@ -122,16 +122,19 @@ class Webdriver:
                 data = self._extract(await self.page.content())
                 self._buf.store(data)
 
-                await self._do_retry(self.page.goto, result_xpath, home)
+                await self._do_retry(self.page.goBack, result_xpath)
 
             next_button = (await self.page.xpath(next_xpath))[0]
+            await next_button.click()
+            print('Clicked')
+            sleep(3)
 
-            if next_button:
-                await self._do_retry(next_button.click, result_xpath)
-                logger.debug('Going to the next page')
-            else:
-                logger.debug('Done with Google Maps')
-                break
+            # if next_button:
+            #     await self._do_retry(next_button.click, result_xpath)
+            #     logger.debug('Going to the next page')
+            # else:
+            #     logger.debug('Done with Google Maps')
+            #     break
 
     def _extract(self, html):
         soup = BeautifulSoup(html, 'html.parser')
@@ -145,10 +148,11 @@ class Webdriver:
                         attrs={'src': re.compile(src)}).parent.parent.parent.text.strip()
                 else:
                     value = soup.find('h1').text.strip()
-                if 'Add' or 'Добавить' in value:
-                    value = None
+                if 'Add' in value or 'Добавить' in value:
+                    logger.debug('Got empty information %s', value)
+                    value = '-'
             except:
-                value = None
+                value = '-'
             data.update({field: value})
 
         logger.debug('Data: %s', list(data.values()))
@@ -161,7 +165,7 @@ class Webdriver:
 async def main():
     w = Webdriver()
     await w.init_browser()
-    await w.search('Кокшетау', 'Спортзал')
+    await w.search('Memphis, Tennessee', 'Loan officers')
 
 if __name__ == '__main__':
     asyncio.run(main())
