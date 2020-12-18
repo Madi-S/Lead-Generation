@@ -1,6 +1,10 @@
 import requests
 from fake_useragent import UserAgent
-from bs4 import BeautifulSoup
+import lxml.html
+from multiprocessing import Pool
+
+urls_xpath = '//a[@class=" link__09f24__1kwXV link-color--inherit__09f24__3PYlA link-size--inherit__09f24__2Uj95"]/@href'
+title_xpath = 'h1'
 
 
 ua = UserAgent()
@@ -11,17 +15,17 @@ status = 'ok'
 
 
 def extract_urls(html):
-    soup = BeautifulSoup(html, 'lxml')
-    urls = soup.select('')
+    tree = lxml.html.document_fromstring(html)
+    urls = ['https://www.yelp.com' + url for url in tree.xpath(urls_xpath)]
     print(urls)
 
 
 def parse(html):
-    pass
+    tree = lxml.html.document_fromstring(html)
 
 
 while status:
     r = requests.get(URL, headers={'User-Agent': ua.random})
     print(r, r.ok)
-    print(extract_urls(r.text))
+    extract_urls(r.text)
     status = r.ok
