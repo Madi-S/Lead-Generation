@@ -1,6 +1,9 @@
 import csv
 
 from my_config import order
+from logger_config import get_logger
+
+logger = get_logger('buffer')
 
 
 class Buffer:
@@ -33,7 +36,6 @@ class Buffer:
 
     def store(self, info: dict):
         if info.get('Title') and not info in self._data: 
-            print('Buffered')
             self._data.append(info)
             if len(self._data) >= self._buffer_size:
                 self._dump()

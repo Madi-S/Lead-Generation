@@ -7,7 +7,6 @@ import re
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from pyppeteer import launch
-from driver_retry import *
 from time import sleep
 
 from locators import *
@@ -15,7 +14,7 @@ from my_config import *
 from logger_config import get_logger
 from bufferization import Buffer
 
-logger = get_logger('driver')
+logger = get_logger('webdriver')
 
 
 class Webdriver:
@@ -24,17 +23,16 @@ class Webdriver:
     _ua = UserAgent()
     _buf = Buffer()
 
-    async def init_browser(self, language='ru'):
+    async def init_browser(self, language='en-gb'):
         self.browser = await launch(
             ignoreHTTPSErrors=True,
             headless=False,
-            # slowMo=30,
+            viewport=None,
             autoclose=True,
-            args=['--start-maximized']
+            args=['--start-maximized'],
         )
         self.page = (await self.browser.pages())[0]
 
-        # await self.page.setViewport(self.viewport)
         await self.page.setUserAgent(self._ua.random)
         await self.page.setExtraHTTPHeaders({'Accept-Language': language})
         await self.page.reload()
@@ -68,15 +66,19 @@ class Webdriver:
             await self.page.keyboard.type(word)
             await self.page.keyboard.press('Enter')
 
+        # Go to google maps, type the location
         await self.page.goto(google_maps)
         await self.page.click('input')
         await _enter(self._location)
-
         await self.page.waitForXPath(button_xpath, {'visible': True})
+
+        # Click search nearby, type the keyword
         await (await self.page.xpath(button_xpath))[2].click()
         await self.page.waitForXPath(search_xpath)
         await self.page.click('input')
         await _enter(self._keyword)
+
+        await self.page.waitForXPath(result_xpath, {'visible': True})
 
     async def _jump(self):
         try:
@@ -87,51 +89,49 @@ class Webdriver:
             await self._shut_browser()
             raise ValueError('Got invalid URL for google maps')
 
-    async def _retry_click(self, element, xpath, retries=0):
+    async def _do_retry(self, operation, xpath, dest=None, retries=0):
         if retries == 10:
             raise SystemError(
                 'Max 10 retries exceeded when clicking the place')
-        else:
-            try:
-                await element.click()
-                await self.page.waitForXPath(xpath, {'visible': True})
-                sleep(0.7)
-                return
-
-            except pyppeteer.errors.TimeoutError:
-                self._retry_click(xpath, element, retries + 1)
-
+        try:
+            if dest:
+                await operation(dest)
             else:
-                raise SystemError('Some shit happened to pyppeteer, fix it')
+                await operation()
+            await self.page.waitForXPath(xpath, {'visible': True})
+            sleep(1)
+        except pyppeteer.errors.TimeoutError:
+            self._do_retry(operation, xpath, dest, retries + 1)
+        except Exception as e:
+            print(e)
+            raise SystemError('Some shit happened to pyppeteer, fix it')
 
     async def _scrape(self):
-        next_button = True
-
-        while next_button:
-
-            await self.page.waitForXPath(result_xpath, {'visible': True})
+        while True:
 
             home = self.page.url
             places = len(await self.page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
-            #for i in range(places):
-#
-            #    logger.debug('Gonna scrape %s out of %s', i + 1, places)
-            #    await self.page.waitForXPath(result_xpath, {'visible': True})
-#
-            #    place = (await self.page.xpath(result_xpath))[i]
-            #    await self._retry_click(place, place_xpath)
-#
-            #    data = self._extract(await self.page.content())
-            #    self._buf.store(data)
-#
-            #    await self.page.goto(home)
-            #    sleep(0.7)
+            for i in range(places):
+                logger.debug('Gonna scrape %s out of %s', i + 1, places)
 
-            logger.debug('Going to the next page')
+                place = (await self.page.xpath(result_xpath))[i]
+                await self._do_retry(place.click, place_xpath)
+
+                data = self._extract(await self.page.content())
+                self._buf.store(data)
+
+                await self._do_retry(self.page.goto, result_xpath, home)
+
             next_button = (await self.page.xpath(next_xpath))[0]
-            await next_button.click()
+
+            if next_button:
+                await self._do_retry(next_button.click, result_xpath)
+                logger.debug('Going to the next page')
+            else:
+                logger.debug('Done with Google Maps')
+                break
 
     def _extract(self, html):
         soup = BeautifulSoup(html, 'html.parser')
@@ -145,6 +145,8 @@ class Webdriver:
                         attrs={'src': re.compile(src)}).parent.parent.parent.text.strip()
                 else:
                     value = soup.find('h1').text.strip()
+                if 'Add' or 'Добавить' in value:
+                    value = None
             except:
                 value = None
             data.update({field: value})
