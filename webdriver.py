@@ -158,7 +158,7 @@ class Webdriver:
 async def main():
     w = Webdriver()
     await w.init_browser('ru')
-    await w.search('Norwich', 'Asian restraunt')
+    await w.search('New Zealand', 'Pastor')
 
 if __name__ == '__main__':
     asyncio.run(main())
