@@ -14,14 +14,14 @@ logger = get_logger('webdriver')
 
 class Webdriver:
     viewport = {'width': 1920, 'height': 1080, 'deviceScaleFactor': 1.0,
-                'isMobile': False, 'hasTouch': False, 'isLandscape': False, 'isMobile': True}
+                'isMobile': False, 'hasTouch': False, 'isLandscape': False}
     _ua = UserAgent()
     _buf = Buffer()
 
-    async def init_browser(self, language='en-gb'):
+    async def init_browser(self, headless='False', language='en-gb'):
         self.browser = await launch(
             ignoreHTTPSErrors=True,
-            headless=False,
+            headless=headless,
             viewport=None,
             autoclose=True,
             args=['--start-maximized'],
@@ -48,8 +48,8 @@ class Webdriver:
                 await operation(dest)
             else:
                 await operation()
-            await self.page.waitForXPath(xpath, {'visible': True})
             sleep(1)
+            await self.page.waitForXPath(xpath, {'visible': True})
         except pyppeteer.errors.TimeoutError:
             await self._do_retry(operation, xpath, dest, retries + 1)
         except Exception as e:

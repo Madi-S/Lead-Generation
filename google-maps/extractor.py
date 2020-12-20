@@ -1,5 +1,7 @@
 import re
 
+import asyncio
+
 from locators import *
 from config import *
 
@@ -15,12 +17,13 @@ from logger_config import get_logger
 logger = get_logger('webdriver.google_maps')
 
 
-class Searcher(Webdriver):
+class GoogleMaps(Webdriver):
 
-    def __init__(self):
-        pass
+
 
     async def search(self, location=None, keyword=None, url=None):
+        if not 'page' in self.__dict__:
+            raise ValueError('Initialize the browser before searching by `await *.init_broswser()`')
         if location and keyword and not url:
             logger.debug(
                 'Working based on location `%s` and keyword `%s`', location, keyword)
@@ -35,7 +38,6 @@ class Searcher(Webdriver):
             await self._shut_browser()
             raise ValueError(
                 f'Specify location and keyword. Otherwise, specify URL only. Got location `{location}`, keyword `{keyword}` and URL `{url}`')
-
         await self._scrape()
         await self._shut_browser()
 
@@ -83,10 +85,10 @@ class Searcher(Webdriver):
 
                 back = (await self.page.xpath(back_xpath))[0]
                 await self._do_retry(back.click, result_xpath)
-                # await self._do_retry(self.page.goBack, result_xpath)
 
             next_button = (await self.page.xpath(next_xpath))[0]
             if not next_button:
+                self._buf.dump()
                 break
             await next_button.click()
             sleep(1)
@@ -112,3 +114,14 @@ class Searcher(Webdriver):
 
         logger.debug('Data: %s', list(data.values()))
         return data
+
+
+async def main():
+    g = GoogleMaps()
+    await g.init_browser(headless=True)
+    await g.search('Кокшетау','Спортзал')    
+
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

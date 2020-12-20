@@ -20,6 +20,7 @@ def get_logger(name: str):
 
         logger = logging.getLogger(name)
         logger.setLevel(logging.DEBUG)
+        logger.propagate = False
         logger.addHandler(s_handler)
         logger.addHandler(f_handler)
 

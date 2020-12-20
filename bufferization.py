@@ -27,18 +27,17 @@ class Buffer:
             writer = csv.DictWriter(f, fieldnames=self.fn)
             writer.writeheader()
 
-    def _dump(self):
+    def dump(self):
         with open('leads.csv', 'a', encoding='utf-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=self.fn)
             for d in self._data:
                 writer.writerow(d)
-        
+        self._data.clear()
 
     def store(self, info: dict):
         if info.get('Title') and not info in self._data: 
             self._data.append(info)
             if len(self._data) >= self._buffer_size:
-                self._dump()
-                self._data.clear()
+                self.dump()
         else:
             print(f'Got duplicate or empty dictionary {info}')
