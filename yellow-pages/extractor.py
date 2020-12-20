@@ -2,6 +2,7 @@ import re
 import requests
 import lxml.html
 
+from multiprocessing import Pool
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 from time import sleep
@@ -34,15 +35,23 @@ class Yelp(Webdriver):
         self._loc = loc
         self._desc = desc
 
-    async def _collect_urls(self, html):
-        tree = lxml.html.document_fromstring(html)
-        urls = ['https://www.yelp.com' + url for url in tree.xpath(urls_xpath)]
+    async def _extract_urls(self, html):
+        return ['https://www.yelp.com' + url for url in lxml.html.document_fromstring(html).xpath(urls_xpath)]
 
     async def _locate(self):
         pass
 
-    def _extract_urls(self, html):
+    def _parse(self, html):
         soup = BeautifulSoup(html, 'lxml')
+
+        try:
+            title = soup.select_one('h1').text.strip()
+        except:
+            title = '-'
+
+        try:
+            
+
 
 
     async def scrape(self):
@@ -54,7 +63,8 @@ class Yelp(Webdriver):
         while True:
             html = await self._locate()
             urls = self._extract_urls(html)
-            self.page
+            with Pool(10) as p:
+                p.map(self._parse, urls)
 
 
 y = Yelp('London', 'Pizza')
