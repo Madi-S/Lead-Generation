@@ -3,11 +3,12 @@ import re
 from locators import *
 from config import *
 
+from time import sleep
 from bs4 import BeautifulSoup
 
 import sys
-
 sys.path.append('..')
+
 from webdriver import Webdriver
 from logger_config import get_logger
 
