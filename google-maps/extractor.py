@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 
 import sys
 sys.path.append('..')
-
 from webdriver import Webdriver
 from logger_config import get_logger
 
@@ -87,6 +86,8 @@ class Searcher(Webdriver):
                 # await self._do_retry(self.page.goBack, result_xpath)
 
             next_button = (await self.page.xpath(next_xpath))[0]
+            if not next_button:
+                break
             await next_button.click()
             sleep(1)
 

@@ -26,9 +26,6 @@ def validate_args(func):
     return inner
 
 
-
-
-
 class Yelp(Webdriver):   
 
     @validate_args
@@ -38,7 +35,16 @@ class Yelp(Webdriver):
         self._desc = desc
         print(self._loc, self._desc)
 
-    
+
+    async def _jump(self, url):
+        pass
+
+    async def scrape(self):
+        pass
+
+
+    def _extract(self, html):
+        soup = BeautifulSoup(html, 'html.parser')
 
 
 y = Yelp('London', 'Pizza')
