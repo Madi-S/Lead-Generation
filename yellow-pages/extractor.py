@@ -8,75 +8,112 @@ from bs4 import BeautifulSoup
 from time import sleep
 
 from locators import *
-from config import *
+from my_config import *
 
 import sys
 sys.path.append('..')
-from my_config import 
+from logger_config import get_logger
 from webdriver import Webdriver
 
 
-not_found = lambda loc, desc: f'No Results for {desc}' in requests.get(url.format(desc, loc), headers={'User-Agent': ua.random}).text
+logger = get_logger('webdriver.yelp')
+
+
 ua = UserAgent()
 
-def validate_args(func):
-    
-    def inner(self, loc, desc):
-        if not_found(loc, desc):
-            raise ValueError(f'No results for `{desc}` in `{loc}`')
-        func(self, loc, desc)
-
-    return inner
-
-
 class Yelp(Webdriver):   
+    _found = lambda loc, desc: not f'No Results for {desc}' in requests.get(yelp.format(desc, loc), headers={'User-Agent': ua.random}).text
+    _yelp = yelp.split('search')[0] 
 
-    @validate_args
-    def __init__(self, loc, desc):
-        self._loc = loc
-        self._desc = desc
 
-    async def _extract_urls(self, html):
-        return ['https://www.yelp.com' + url for url in lxml.html.document_fromstring(html).xpath(urls_xpath)]
-
+    async def search(self, loc=None, desc=None, url=None):
+        if not '_page' in self.__dict__:
+            raise ValueError('Initialize the browser before searching by `await *.init_broswser()`')
+        
+        if loc and desc and not url:
+            if self._found(loc, desc):
+                logger.debug('Working based on location `%s` and keyword `%s`', loc, desc)
+                self._data = [desc, loc]
+                await self._locate()
+            else:
+                raise ValueError(f'No result for `{desc}` and `{loc}`')
+        
+        elif not (loc and desc) and url:
+            await self._jump(url, yelp_xpath)
+            logger.debug('Working based on given URL `%s`', url)
+        
+        else:
+            await self._shut_browser()
+            raise ValueError('Specify only location and description or only URL for yelp page')
+        
+        await self._scrape
+        await self._shut_browser
+        
     async def _locate(self):
-        self._page.goto()
+        await self._page.goto(self._yelp)
+        sleep(2.5)
 
-    def _parse(self, html):
-        soup = BeautifulSoup(html, 'lxml')
+        inputs = await self._page.querySelectorAll(input_locator)
+        for i in range(2):
+            await inputs[i].click()
+            sleep(0.13)
+            await inputs[i].enter(self._data[i])
 
-        try:
-            title = soup.select_one('h1').text.strip()
-        except:
-            title = '-'
+        sleep(0.21)
+        await self._page.keyboard.press('Enter')
 
-        try:
-            phone = soup.find(string='Phone number').next_sibling().text().strip()
-        except:
-            phone = '-'
 
-        try:
-            addr = soup.find(string='Get Directions').next_sibling().text.strip()
-        except:
-            addr = None
-        try:
-            website = soup.find(attrs={'rel':'noopener'})['href'].split('/biz_redir?url=http%3A%2F%2F')[0].split('&')[0]
-        except:
-            website = None
 
-        return dict(zip(order, [title, addr, website, phone]))
 
-    async def scrape(self):
-        # 1) Go to the yelp with given description and location
-        # 2) Extract urls from each page
-        # 3) Scrape each page using Pool
-        # 4) Go to next page (if exists)
-        # 5) Iterate it over
+    async def _scrape(self):
+
+        def parse(url):
+            r = requests.get(url)
+            if r.ok:
+                soup = BeautifulSoup(html, 'lxml')
+
+                try:
+                    title = soup.select_one('h1').text.strip()
+                except:
+                    title = '-'
+
+                try:
+                    phone = soup.find(string='Phone number').next_sibling().text().strip()
+                except:
+                    phone = '-'
+
+                try:
+                    addr = soup.find(string='Get Directions').next_sibling().text.strip()
+                except:
+                    addr = '-'
+                try:
+                    website = soup.find(attrs={'rel':'noopener'})['href'].split('/biz_redir?url=http%3A%2F%2F')[0].split('&')[0]
+                except:
+                    website = '-'
+
+                self._buf.store(dict(zip(order, [title, addr, website, phone])))
+            else:
+                logger.warning(f'Failed request {r} to {url}')
+
+        def extract_urls(html):
+            return ['https://www.yelp.com' + url for url in lxml.html.document_fromstring(html).xpath(urls_xpath)]
+
+
         while True:
-            html = await self._locate()
-            urls = self._extract_urls(html)
+            urls = extract_urls(await self._page.content())
+
             with Pool(10) as p:
-                p.map(self._parse, urls)
+                p.map(parse, urls)
 
+            next_button = await self._page.xpath(next_xpath)
+            if not next_button:
+                self._buf.dump()
+                break
 
-y = Yelp('London', 'Pizza')
+            await next_button.click()
+            sleep(2)
+
+if __name__ == '__main__':
+    y = Yelp()
+    await y.init_browser()
+    await y.search('London','Sportswear')

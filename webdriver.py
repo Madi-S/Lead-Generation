@@ -18,10 +18,10 @@ class Webdriver:
     _ua = UserAgent()
     _buf = Buffer()
 
-    async def init_browser(self, headless='False', language='en-gb'):
+    async def init_browser(self, headless_status=False, language='en-gb'):
         self.browser = await launch(
             ignoreHTTPSErrors=True,
-            headless=headless,
+            headless=headless_status,
             viewport=None,
             autoclose=True,
             args=['--start-maximized'],
@@ -32,6 +32,8 @@ class Webdriver:
         await self._page.setViewport(self.viewport)
         await self._page.setExtraHTTPHeaders({'Accept-Language': language})
         await self._page.reload()
+
+        logger.debug('Successfull initialization')
 
     async def _shut_browser(self):
         logger.debug('Shutting down browser in 15 seconds')
@@ -56,10 +58,6 @@ class Webdriver:
             print(e)
             raise SystemError('Some shit happened to pyppeteer, fix it')
     
-    async def _enter(self, word):
-        await self._page.keyboard.type(word)
-        await self._page.keyboard.press('Enter')
-
     async def _jump(self, url, xpath):
         try:
             await self._page.goto(url)
