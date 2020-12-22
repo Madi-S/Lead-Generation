@@ -1,0 +1,9 @@
+2020-12-22 18:46:32,074 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:33,359 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:34,790 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:36,292 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:37,827 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:39,783 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:41,092 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:42,481 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-22 18:46:43,892 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
