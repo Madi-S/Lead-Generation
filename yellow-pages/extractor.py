@@ -1,6 +1,7 @@
 import re
 import requests
 import lxml.html
+import asyncio
 
 from multiprocessing import Pool
 from fake_useragent import UserAgent
@@ -21,8 +22,9 @@ logger = get_logger('webdriver.yelp')
 
 ua = UserAgent()
 
+_found = lambda loc, desc: not f'No Results for {desc}' in requests.get(yelp.format(desc, loc), headers={'User-Agent': ua.random}).text
+
 class Yelp(Webdriver):   
-    _found = lambda loc, desc: not f'No Results for {desc}' in requests.get(yelp.format(desc, loc), headers={'User-Agent': ua.random}).text
     _yelp = yelp.split('search')[0] 
 
 
@@ -31,7 +33,7 @@ class Yelp(Webdriver):
             raise ValueError('Initialize the browser before searching by `await *.init_broswser()`')
         
         if loc and desc and not url:
-            if self._found(loc, desc):
+            if _found(loc, desc):
                 logger.debug('Working based on location `%s` and keyword `%s`', loc, desc)
                 self._data = [desc, loc]
                 await self._locate()
@@ -46,8 +48,8 @@ class Yelp(Webdriver):
             await self._shut_browser()
             raise ValueError('Specify only location and description or only URL for yelp page')
         
-        await self._scrape
-        await self._shut_browser
+        await self._scrape()
+        await self._shut_browser()
         
     async def _locate(self):
         await self._page.goto(self._yelp)
@@ -57,18 +59,16 @@ class Yelp(Webdriver):
         for i in range(2):
             await inputs[i].click()
             sleep(0.13)
-            await inputs[i].enter(self._data[i])
+            await self._page.keyboard.type(self._data[i])
 
         sleep(0.21)
         await self._page.keyboard.press('Enter')
 
-
-
-
     async def _scrape(self):
 
         def parse(url):
-            r = requests.get(url)
+            r = requests.get(url, headers={'User-Agent': ua.random})
+            html = r.text
             if r.ok:
                 soup = BeautifulSoup(html, 'lxml')
 
@@ -113,7 +113,12 @@ class Yelp(Webdriver):
             await next_button.click()
             sleep(2)
 
-if __name__ == '__main__':
+async def main():
     y = Yelp()
     await y.init_browser()
     await y.search('London','Sportswear')
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+    
