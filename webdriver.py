@@ -26,17 +26,17 @@ class Webdriver:
             autoclose=True,
             args=['--start-maximized'],
         )
-        self.page = (await self.browser.pages())[0]
+        self._page = (await self.browser.pages())[0]
 
-        await self.page.setUserAgent(self._ua.random)
-        await self.page.setViewport(self.viewport)
-        await self.page.setExtraHTTPHeaders({'Accept-Language': language})
-        # await self.page.reload()
+        await self._page.setUserAgent(self._ua.random)
+        await self._page.setViewport(self.viewport)
+        await self._page.setExtraHTTPHeaders({'Accept-Language': language})
+        await self._page.reload()
 
     async def _shut_browser(self):
-        logger.debug('Shutting down browser')
+        logger.debug('Shutting down browser in 15 seconds')
         sleep(15)
-        await self.page.close()
+        await self._page.close()
         await self.browser.close()
 
     async def _do_retry(self, operation, xpath, dest=None, retries=0):
@@ -49,9 +49,22 @@ class Webdriver:
             else:
                 await operation()
             sleep(1)
-            await self.page.waitForXPath(xpath, {'visible': True})
+            await self._page.waitForXPath(xpath, {'visible': True})
         except pyppeteer.errors.TimeoutError:
             await self._do_retry(operation, xpath, dest, retries + 1)
         except Exception as e:
             print(e)
             raise SystemError('Some shit happened to pyppeteer, fix it')
+    
+    async def _enter(self, word):
+        await self._page.keyboard.type(word)
+        await self._page.keyboard.press('Enter')
+
+    async def _jump(self, url, xpath):
+        try:
+            await self._page.goto(url)
+            logger.debug('Validating given URL')
+            self._page.waitForXPath(xpath, {'visible': True})
+        except:
+            await self._shut_browser()
+            raise ValueError('Got invalid URL for google maps')

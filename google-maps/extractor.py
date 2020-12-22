@@ -32,8 +32,7 @@ class GoogleMaps(Webdriver):
             await self._locate()
         elif not (location and keyword) and url:
             logger.debug('Working based on given URL `%s`', url)
-            self._url = url
-            await self._jump()
+            await self._jump(url, search_xpath)
         else:
             await self._shut_browser()
             raise ValueError(
@@ -42,51 +41,39 @@ class GoogleMaps(Webdriver):
         await self._shut_browser()
 
     async def _locate(self):
-        async def _enter(word):
-            await self.page.keyboard.type(word)
-            await self.page.keyboard.press('Enter')
-
-        # Go to google maps, type the location
-        await self.page.goto(google_maps)
-        await self.page.click('input')
-        await _enter(self._location)
-        await self.page.waitForXPath(button_xpath, {'visible': True})
+            # Go to google maps, type the location
+        await self._page.goto(google_maps)
+        await self._page.click('input')
+        await self._enter(self._location)
+        await self._page.waitForXPath(button_xpath, {'visible': True})
 
         # Click search nearby, type the keyword
-        await (await self.page.xpath(button_xpath))[2].click()
-        await self.page.waitForXPath(search_xpath)
-        await self.page.click('input')
-        await _enter(self._keyword)
+        await (await self._page.xpath(button_xpath))[2].click()
+        await self._page.waitForXPath(search_xpath)
+        await self._page.click('input')
+        await self._enter(self._keyword)
 
-        await self.page.waitForXPath(result_xpath, {'visible': True})
+        await self._page.waitForXPath(result_xpath, {'visible': True})
 
-    async def _jump(self):
-        try:
-            await self.page.goto(self._url)
-            logger.debug('Validating given URL')
-            self.page.waitForXPath(check_xpath, {'visible': True})
-        except:
-            await self._shut_browser()
-            raise ValueError('Got invalid URL for google maps')
 
     async def _scrape(self):
         while True:
-            places = len(await self.page.xpath(result_xpath))
+            places = len(await self._page.xpath(result_xpath))
             logger.debug('%s places found', places)
 
             for i in range(places):
                 logger.debug('Gonna scrape %s out of %s', i + 1, places)
 
-                place = (await self.page.xpath(result_xpath))[i]
+                place = (await self._page.xpath(result_xpath))[i]
                 await self._do_retry(place.click, place_xpath)
 
-                data = self._extract(await self.page.content())
+                data = self._extract(await self._page.content())
                 self._buf.store(data)
 
-                back = (await self.page.xpath(back_xpath))[0]
+                back = (await self._page.xpath(back_xpath))[0]
                 await self._do_retry(back.click, result_xpath)
 
-            next_button = (await self.page.xpath(next_xpath))[0]
+            next_button = (await self._page.xpath(next_xpath))[0]
             if not next_button:
                 self._buf.dump()
                 break

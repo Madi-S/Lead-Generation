@@ -12,6 +12,7 @@ from config import *
 
 import sys
 sys.path.append('..')
+from my_config import 
 from webdriver import Webdriver
 
 
@@ -39,7 +40,7 @@ class Yelp(Webdriver):
         return ['https://www.yelp.com' + url for url in lxml.html.document_fromstring(html).xpath(urls_xpath)]
 
     async def _locate(self):
-        pass
+        self._page.goto()
 
     def _parse(self, html):
         soup = BeautifulSoup(html, 'lxml')
@@ -50,9 +51,20 @@ class Yelp(Webdriver):
             title = '-'
 
         try:
-            
+            phone = soup.find(string='Phone number').next_sibling().text().strip()
+        except:
+            phone = '-'
 
+        try:
+            addr = soup.find(string='Get Directions').next_sibling().text.strip()
+        except:
+            addr = None
+        try:
+            website = soup.find(attrs={'rel':'noopener'})['href'].split('/biz_redir?url=http%3A%2F%2F')[0].split('&')[0]
+        except:
+            website = None
 
+        return dict(zip(order, [title, addr, website, phone]))
 
     async def scrape(self):
         # 1) Go to the yelp with given description and location
