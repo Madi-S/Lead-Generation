@@ -1,9 +1,8 @@
 import re
-import requests
 import lxml.html
+import requests
 import asyncio
 
-from multiprocessing import Pool
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 from time import sleep
@@ -55,65 +54,48 @@ class Yelp(Webdriver):
         await self._page.goto(self._yelp)
         sleep(2.5)
 
-        inputs = await self._page.querySelectorAll(input_locator)
+        inputs = await self._page.querySelectorAll(input_selector)
         for i in range(2):
             await inputs[i].click()
             sleep(0.13)
             await self._page.keyboard.type(self._data[i])
+            sleep(0.21)
 
-        sleep(0.21)
-        # await self._page.keyboard.press('Enter')
-        sleep(3)
-        print(len(await self._page.content()))
+        await self._page.click(search_button_selector)
 
     async def _scrape(self):
+        
+        def parse(html):
+            data = {}
+            soup = BeautifulSoup(html, 'lxml')
 
-        def parse(url):
-            r = requests.get(url, headers={'User-Agent': ua.random})
-            html = r.text
-            if r.ok:
-                soup = BeautifulSoup(html, 'lxml')
-
+            for field, cls_ in order.items():
                 try:
-                    title = soup.select_one('h1').text.strip()
+                    if cls_:
+                        value = soup.find(class_=cls_,).parent.previous_sibling().text.strip()
+                    else:
+                        value = soup.find('h1').text.strip()
                 except:
-                    title = '-'
+                    value = '-'
+                data.update({field: value})
 
-                try:
-                    phone = soup.find(string='Phone number').next_sibling().text().strip()
-                except:
-                    phone = '-'
+            self._buf.store(data)
 
-                try:
-                    addr = soup.find(string='Get Directions').next_sibling().text.strip()
-                except:
-                    addr = '-'
-                try:
-                    website = soup.find(attrs={'rel':'noopener'})['href'].split('/biz_redir?url=http%3A%2F%2F')[0].split('&')[0]
-                except:
-                    website = '-'
 
-                self._buf.store(dict(zip(order, [title, addr, website, phone])))
-            else:
-                logger.warning(f'Failed request {r} to {url}')
-
-        def extract_urls(html):
-            return ['https://www.yelp.com' + url for url in lxml.html.document_fromstring(html).xpath(urls_xpath)]
-
-        # await self._page.goto('https://www.yelp.com/search?find_desc=Pizza&find_loc=London&ns=1')
         while True:
-            sleep(5)
             await self._page.waitForXPath(results_xpath)
-            urls = extract_urls(await self._page.content())
+            places = await self._page.xpath(places_xpath)
+            
+            for place in places:
+                await self._page.waitForXPath(results_xpath)
+                await place.click()
+                await self._page.waitForXPath(inner_xpath)
+                sleep(1.5)
+                parse(await self._page.content())
+                await self._page.goBack()
 
-            # with Pool(10) as p:
-            #     print('Etnered pool')
-            #     p.map(parse, urls)
-            # print('Exited pool')
-            for url in urls:
-                logger.debug('Parsing %s', url)
-                parse(url)
             next_button = await self._page.xpath(next_xpath)
+
             if not next_button:
                 self._buf.dump()
                 break

@@ -1,23 +1,22 @@
 import csv
 
-from my_config import order
 from logger_config import get_logger
 
 logger = get_logger('buffer')
 
 
 class Buffer:
-    lower_limit = 10
-    upper_limit = 201
-    fn = list(order.keys())
+    lower_limit = 5
+    upper_limit = 200
+    fn =  ['Title','Address','WebSite','PhoneNumber']
 
-    def __init__(self, filename: str = 'leads.csv', buffer_size: int = 15):
+    def __init__(self, filename: str = 'leads.csv', buffer_size: int = 5):
         if not filename.endswith('.csv'):
             raise ValueError(
                 'Incorrect filename specified. Filename should end with `.csv`')
-        if not buffer_size in range(self.lower_limit, self.upper_limit):
+        if not buffer_size in range(self.lower_limit, self.upper_limit + 1):
             raise ValueError(
-                f'Expected value between {self.upper_limit} and {self.upper_limit}. However, got {buffer_size}')
+                f'Expected value between {self.lower_limit} and {self.upper_limit}. However, got {buffer_size}')
 
         self._buffer_size = buffer_size
         self._filename = filename
@@ -40,4 +39,4 @@ class Buffer:
             if len(self._data) >= self._buffer_size:
                 self.dump()
         else:
-            print(f'Got duplicate or empty dictionary {info}')
+            logger.warning('Got duplicate or empty dictionary %s', info)
