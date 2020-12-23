@@ -72,23 +72,25 @@ class Yelp(Webdriver):
             for field, cls_ in order.items():
                 try:
                     if cls_:
-                        value = soup.find(class_=cls_,).parent.previous_sibling().text.strip()
+                        value = soup.find(class_=cls_,).parent.previous_sibling().text.replace('Business website','').replace('Phone number','').strip()
                     else:
                         value = soup.find('h1').text.strip()
-                except:
+                except Exception as e:
+                    print(e)
                     value = '-'
                 data.update({field: value})
-
+            logger.debug('Extracted: %s', list(data.values()))
             self._buf.store(data)
 
 
         while True:
             await self._page.waitForXPath(results_xpath)
-            places = await self._page.xpath(places_xpath)
+            places = len(await self._page.xpath(places_xpath))
+            logger.debug('%s places found', places)
             
-            for place in places:
+            for i in range(places):
                 await self._page.waitForXPath(results_xpath)
-                await place.click()
+                await (await self._page.xpath(places_xpath))[i].click()
                 await self._page.waitForXPath(inner_xpath)
                 sleep(1.5)
                 parse(await self._page.content())

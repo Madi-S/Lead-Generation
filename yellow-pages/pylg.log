@@ -34,3 +34,4 @@
 2020-12-23 09:12:10,116 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
 2020-12-23 09:12:11,587 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
 2020-12-23 09:12:12,800 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': '-', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
+2020-12-23 09:32:17,812 - WARNING | bufferization.py/store/42 | Got duplicate or empty dictionary {'Title': 'Sweaty Betty', 'Address': '-', 'WebSite': '-', 'PhoneNumber': '-'}
