@@ -86,7 +86,7 @@ class Yelp(Webdriver):
 
         sleep(3)
         while True:
-            await self._page.waitForXPath(places_xpath)
+            await self._page.waitForXPath(places_xpath, {'visible': True})
             places = len(await self._page.xpath(places_xpath))
             logger.debug('%s places found', places)
 
@@ -94,12 +94,12 @@ class Yelp(Webdriver):
 
                 place = (await self._page.xpath(places_xpath))[i]
                 await place.click()
-                await self._page.waitForXPath(inner_xpath)
+                await self._page.waitForXPath(inner_xpath, {'visible': True})
 
                 parse(await self._page.content())
                 # await self._do_retry(self._page.goBack, results_xpath)
                 await self._page.goBack()
-                await self._page.waitForXPath(results_xpath)
+                await self._page.waitForXPath(results_xpath, {'visible': True})
 
             next_button = await self._page.xpath(next_xpath)
 
