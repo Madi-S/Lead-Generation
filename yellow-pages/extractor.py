@@ -73,7 +73,10 @@ class Yelp(Webdriver):
             soup = BeautifulSoup(html, 'html.parser')
 
             raw_data = json.loads(soup.find('script', attrs=json_attrs).string)
-            website = soup.find(attrs=website_attrs).text
+            try:
+                website = soup.find(attrs=website_attrs).text
+            except:
+                website = '-'
 
             data = {'Title': raw_data['name'],
                     'Address': ', '.join(list(raw_data['address'].values())), 'WebSite': website,
@@ -81,18 +84,22 @@ class Yelp(Webdriver):
             logger.debug('Extracted: %s', list(data.values()))
             self._buf.store(data)
 
+        sleep(3)
         while True:
-            await self._page.waitForXPath(results_xpath)
+            await self._page.waitForXPath(places_xpath)
             places = len(await self._page.xpath(places_xpath))
             logger.debug('%s places found', places)
 
             for i in range(places):
-                await self._page.waitForXPath(results_xpath)
-                await (await self._page.xpath(places_xpath))[i].click()
+
+                place = (await self._page.xpath(places_xpath))[i]
+                await place.click()
                 await self._page.waitForXPath(inner_xpath)
-                sleep(1.5)
+
                 parse(await self._page.content())
+                # await self._do_retry(self._page.goBack, results_xpath)
                 await self._page.goBack()
+                await self._page.waitForXPath(results_xpath)
 
             next_button = await self._page.xpath(next_xpath)
 
@@ -100,8 +107,8 @@ class Yelp(Webdriver):
                 self._buf.dump()
                 break
 
-            await next_button[0].click()
-            sleep(2)
+            await self._do_retry(next_button[0].click, results_xpath)
+            sleep(1.5)
 
 
 async def main():
