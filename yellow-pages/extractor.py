@@ -3,8 +3,11 @@ import json
 import requests
 import asyncio
 
+from pyppeteer.errors import TimeoutError
+
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
+from random import uniform
 from time import sleep
 
 from locators import *
@@ -21,22 +24,26 @@ logger = get_logger('webdriver.yelp')
 ua = UserAgent()
 
 
-def _found(loc, desc): return not f'No Results for {desc}' in requests.get(
-    yelp.format(desc, loc), headers={'User-Agent': ua.random}).text
+_found = lambda loc, desc: not f'No Results for {desc}' in requests.get(yelp.format(desc, loc), headers={'User-Agent': ua.random}).text
 
 
 class Yelp(Webdriver):
     _yelp = yelp.split('search')[0]
 
     async def search(self, loc=None, desc=None, url=None):
+        '''
+
+        :param desc: Description to generate leads (e.g., 'Sportswear') 
+        :param loc: Location to search (e.g., 'London')
+        :param url: Direct URL to yelp results page. Must be specified without `desc` and `loc` 
+        :return: returns nothing
+        '''
         if not '_page' in self.__dict__:
-            raise ValueError(
-                'Initialize the browser before searching by `await *.init_broswser()`')
+            raise ValueError('Initialize the browser before searching by `await *.init_broswser()`')
 
         if loc and desc and not url:
             if _found(loc, desc):
-                logger.debug(
-                    'Working based on location `%s` and keyword `%s`', loc, desc)
+                logger.debug('Working based on location `%s` and keyword `%s`', loc, desc)
                 self._data = [desc, loc]
                 await self._locate()
             else:
@@ -48,22 +55,21 @@ class Yelp(Webdriver):
 
         else:
             await self._shut_browser()
-            raise ValueError(
-                'Specify only location and description or only URL for yelp page')
+            raise ValueError('Specify only location and description or only URL for yelp page')
 
         await self._scrape()
         await self._shut_browser()
 
     async def _locate(self):
         await self._page.goto(self._yelp)
-        sleep(2.5)
+        sleep(uniform(2.5, 3.5))
 
         inputs = await self._page.querySelectorAll(input_selector)
-        for i in range(2):
-            await inputs[i].click()
-            sleep(0.13)
+        for i, inp in enumerate(inputs[:2]):
+            await inp.click()
+            sleep(uniform(0.1, 0.2))
             await self._page.keyboard.type(self._data[i])
-            sleep(0.21)
+            sleep(uniform(0.2, 0.26))
 
         await self._page.click(search_button_selector)
 
@@ -77,27 +83,35 @@ class Yelp(Webdriver):
                 website = soup.find(attrs=website_attrs).text
             except:
                 website = '-'
-
-            data = {'Title': raw_data['name'],
+            try:
+                data = {'Title': raw_data['name'],
                     'Address': ', '.join(list(raw_data['address'].values())), 'WebSite': website,
                     'PhoneNumber': raw_data['telephone']}
-            logger.debug('Extracted: %s', list(data.values()))
-            self._buf.store(data)
+                logger.debug('Extracted: %s', list(data.values()))
+                self._buf.store(data)
+            except Exception:
+                logger.warning('Exception while scraping', exc_info=True)
 
-        sleep(3)
+        sleep(uniform(2, 3))
         while True:
-            await self._page.waitForXPath(places_xpath, {'visible': True})
+            try:
+                await self._page.waitForXPath(places_xpath, {'visible': True})
+            except TimeoutError:
+                logger.debug('Next page did not yield any results -> breaking')
+                break
             places = len(await self._page.xpath(places_xpath))
             logger.debug('%s places found', places)
 
             for i in range(places):
 
                 place = (await self._page.xpath(places_xpath))[i]
+
                 await place.click()
+                sleep(uniform(1.7, 2))
                 await self._page.waitForXPath(inner_xpath, {'visible': True})
 
                 parse(await self._page.content())
-                # await self._do_retry(self._page.goBack, results_xpath)
+
                 await self._page.goBack()
                 await self._page.waitForXPath(results_xpath, {'visible': True})
 
@@ -108,7 +122,7 @@ class Yelp(Webdriver):
                 break
 
             await self._do_retry(next_button[0].click, results_xpath)
-            sleep(1.5)
+            sleep(uniform(1.3, 1.7))
 
 
 async def main():

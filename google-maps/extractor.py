@@ -117,8 +117,8 @@ class GoogleMaps(Webdriver):
 
 async def main():
     g = GoogleMaps()
-    await g.init_browser()
-    await g.search('London', 'Sportswear')
+    await g.init_browser(headless_status=True)
+    await g.search('Nur-Sulatn', 'Hotel')
 
 
 if __name__ == '__main__':
