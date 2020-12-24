@@ -5,3 +5,6 @@ inner_xpath = '//*[@class="lemon--h1__373c0__2ZHSL heading--h1__373c0__dvYgw und
 
 search_button_selector = '.ybtn.ybtn--primary.ybtn--small.business-search-form_button'
 input_selector = '.pseudo-input_field.business-search-form_input-field'
+
+json_attrs = {'type': 'application/ld+json'}
+website_attrs = {'rel': 'noopener nofollow'}
