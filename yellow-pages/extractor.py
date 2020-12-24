@@ -118,11 +118,12 @@ class Yelp(Webdriver):
             next_button = await self._page.xpath(next_xpath)
 
             if not next_button:
-                self._buf.dump()
                 break
 
             await self._do_retry(next_button[0].click, results_xpath)
             sleep(uniform(1.3, 1.7))
+
+        self._buf.dump()
 
 
 async def main():

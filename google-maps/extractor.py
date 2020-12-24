@@ -5,6 +5,7 @@ from locators import *
 from my_config import *
 
 from time import sleep
+from random import uniform
 from bs4 import BeautifulSoup
 
 from pyppeteer.errors import PageError
@@ -48,14 +49,13 @@ class GoogleMaps(Webdriver):
         async def _enter(word):
             await self._page.keyboard.type(word)
             await self._page.keyboard.press('Enter')
-        # Go to google maps, type the location
+
         try:
             await self._page.goto(google_maps)
             await self._page.click('input')
             await _enter(self._location)
             sleep(2.5)
 
-            # Click search nearby, type the keyword
             await self._page.waitForXPath(button_xpath, {'visible': True})
             await (await self._page.xpath(button_xpath))[2].click()
             await self._page.waitForXPath(search_xpath)
@@ -96,23 +96,27 @@ class GoogleMaps(Webdriver):
             logger.debug('%s places found', places)
 
             for i in range(places):
-                logger.debug('Gonna scrape %s out of %s', i + 1, places)
+                try:
+                    logger.debug('Gonna scrape %s out of %s', i + 1, places)
 
-                place = (await self._page.xpath(result_xpath))[i]
-                await self._do_retry(place.click, place_xpath)
+                    place = (await self._page.xpath(result_xpath))[i]
+                    await self._do_retry(place.click, place_xpath)
 
-                data = extract(await self._page.content())
-                self._buf.store(data)
+                    data = extract(await self._page.content())
+                    self._buf.store(data)
 
-                back = (await self._page.xpath(back_xpath))[0]
-                await self._do_retry(back.click, result_xpath)
+                    back = (await self._page.xpath(back_xpath))[0]
+                    await self._do_retry(back.click, result_xpath)
+                except:
+                    logger.warning('Error occured',exc_info=True)
 
             next_button = (await self._page.xpath(next_xpath))[0]
             if not next_button:
-                self._buf.dump()
                 break
             await next_button.click()
-            sleep(0.7)
+            sleep(uniform(0.7, 1))
+
+        self._buf.dump()
 
 
 async def main():
