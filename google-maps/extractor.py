@@ -22,6 +22,15 @@ logger = get_logger('webdriver.google_maps')
 class GoogleMaps(Webdriver):
 
     async def search(self, location=None, keyword=None, url=None):
+        '''
+
+        :param desc: Description to generate leads (e.g., 'Pizza Delivery') 
+        :param loc: Location to search (e.g., 'California')
+        :param url: Direct URL to yelp results page. Must be specified without `desc` and `loc` 
+        :return: returns nothing
+        '''
+
+
         if not '_page' in self.__dict__:
             raise ValueError(
                 'Initialize the browser before searching by `await *.init_broswser()`')
