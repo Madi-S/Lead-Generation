@@ -60,11 +60,28 @@ class LinkedIn(Webdriver):
         sleep(uniform(2, 5))
 
     async def search_title(self, title):
-        await self._page.click(search_locator)
-        sleep(uniform(2, 3))
-        await self.type_(title)
-        sleep(uniform(0.5, 1))
-        await self._page.keyboard.press('Enter')
+        # await self._page.click(search_locator)
+        # sleep(uniform(2, 3))
+ 
+        # await self.type_(title)
+        # sleep(uniform(0.5, 1))
+
+        # await self._page.keyboard.press('Enter')
+        # sleep(uniform(2,5))
+
+        # select_bar = (await self._page.xpath(select_bar_xpath))[0]
+        # await select_bar.click()
+
+        await self._page.goto(f'https://www.linkedin.com/search/results/companies/?keywords={title}&origin=GLOBAL_SEARCH_HEADER')
+        companies = await self._page.querySelectorAll(companies_locator)
+
+        if not companies:
+            return 'Nothing Found'
+
+        await companies[0].click()
+
+    async def open_members(self):
+        pass
 
     def break_title(self, title):
         return
