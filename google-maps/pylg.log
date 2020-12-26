@@ -1,2 +1,44 @@
 2020-12-26 09:03:01,994 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
 2020-12-26 09:04:41,661 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
+2020-12-26 09:06:27,528 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
+2020-12-26 09:08:11,889 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
+2020-12-26 09:09:56,557 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
+2020-12-26 09:11:08,657 - WARNING | webdriver.py/_do_retry/67 | Cannot locate xpath retry #1
+2020-12-26 09:39:24,550 - ERROR | webdriver.py/_do_retry/70 | Exception found when retrying
+Traceback (most recent call last):
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\runners.py", line 43, in run
+    return loop.run_until_complete(main)
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\base_events.py", line 603, in run_until_complete
+    self.run_forever()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\base_events.py", line 570, in run_forever
+    self._run_once()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\base_events.py", line 1823, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\windows_events.py", line 430, in select
+    self._poll(timeout)
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\windows_events.py", line 779, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\site-packages\pyppeteer\launcher.py", line 151, in _close_process
+    self._loop.run_until_complete(self.killChrome())
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\base_events.py", line 592, in run_until_complete
+    self._check_running()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\asyncio\base_events.py", line 552, in _check_running
+    raise RuntimeError('This event loop is already running')
+RuntimeError: This event loop is already running
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "..\webdriver.py", line 63, in _do_retry
+    await operation()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\site-packages\pyppeteer\element_handle.py", line 177, in click
+    await self._scrollIntoViewIfNeeded()
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\site-packages\pyppeteer\element_handle.py", line 68, in _scrollIntoViewIfNeeded
+    error = await self.executionContext.evaluate('''
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\site-packages\pyppeteer\execution_context.py", line 53, in evaluate
+    handle = await self.evaluateHandle(
+  File "C:\Users\khova\AppData\Local\Programs\Python\Python38-32\lib\site-packages\pyppeteer\execution_context.py", line 99, in evaluateHandle
+    _obj = await self._client.send('Runtime.callFunctionOn', {
+asyncio.exceptions.CancelledError
