@@ -130,7 +130,7 @@ class GoogleMaps(Webdriver):
 
 async def main():
     g = GoogleMaps()
-    await g.init_browser(headless_status=True)
+    await g.init_browser(hidden=True)
     await g.search('Nur-Sulatn', 'Hotel')
 
 

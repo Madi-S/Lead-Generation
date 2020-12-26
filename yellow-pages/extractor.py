@@ -113,6 +113,7 @@ class Yelp(Webdriver):
                 parse(await self._page.content())
 
                 await self._page.goBack()
+                sleep(uniform(1,2))
                 await self._page.waitForXPath(results_xpath, {'visible': True})
 
             next_button = await self._page.xpath(next_xpath)
@@ -128,8 +129,8 @@ class Yelp(Webdriver):
 
 async def main():
     y = Yelp()
-    await y.init_browser()
-    await y.search('London', 'Sportswear')
+    await y.init_browser(hidden=False)
+    await y.search('London', 'Hostel')
 
 
 if __name__ == '__main__':
