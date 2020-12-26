@@ -1,0 +1,225 @@
+((function(t){"object"==typeof module&&module.exports?module.exports=t:"function"==typeof define&&define.amd?define((function(){return t})):t(Highcharts)}))((function(t){((function(t){var e=t.each,i=t.pick
+t.i18nFormat=function(n,r,o){var s,a,l=function(t,e){var i=(t=t.slice(e||0)).indexOf("{"),n=t.indexOf("}")
+if(-1<i&&n>i)return{statement:t.substring(i+1,n),begin:e+i+1,end:e+n}},h=[]
+a=0
+do{s=l(n,a),(a=n.substring(a,s&&s.begin-1)).length&&h.push({value:a,type:"constant"}),s&&h.push({value:s.statement,type:"statement"}),a=s&&s.end+1}while(s)
+e(h,(function(t){"statement"===t.type&&(t.value=(function(t,e){var n=t.indexOf("#each("),r=t.indexOf("#plural("),o=t.indexOf("["),s=t.indexOf("]")
+if(-1<n){o=t.slice(n).indexOf(")")+n
+var a=t.substring(0,n)
+r=t.substring(o+1),o=t.substring(n+6,o).split(","),n=Number(o[1])
+t=""
+if(e=e[o[0]])for(n=0>(n=isNaN(n)?e.length:n)?e.length+n:Math.min(n,e.length),o=0;o<n;++o)t+=a+e[o]+r
+return t.length?t:""}if(-1<r){a=t.slice(r).indexOf(")")+r
+t=t.substring(r+8,a).split(",")
+switch(Number(e[t[0]])){case 0:t=i(t[4],t[1])
+break
+case 1:t=i(t[2],t[1])
+break
+case 2:t=i(t[3],t[1])
+break
+default:t=t[1]}return e=t?(e=t).trim&&e.trim()||e.replace(/^\s+|\s+$/g,""):""}return-1<o?(r=t.substring(0,o),t=Number(t.substring(o+1,s)),e=e[r],!isNaN(t)&&e&&(0>t?void 0===(a=e[e.length+t])&&(a=e[0]):void 0===(a=e[t])&&(a=e[e.length-1])),void 0!==a?a:""):"{"+t+"}"})(t.value,r))}))
+return t.format(t.reduce(h,(function(t,e){return t+e.value}),""),r,o)}
+t.Chart.prototype.langFormat=function(e,i,n){e=e.split(".")
+for(var r=this.options.lang,o=0;o<e.length;++o)r=r&&r[e[o]]
+return"string"==typeof r&&t.i18nFormat(r,i,n)}
+t.setOptions({lang:{accessibility:{screenReaderRegionLabel:"Chart screen reader information.",navigationHint:"Use regions/landmarks to skip ahead to chart {#plural(numSeries, and navigate between data series,)}",defaultChartTitle:"Chart",longDescriptionHeading:"Long description.",noDescription:"No description available.",structureHeading:"Structure.",viewAsDataTable:"View as data table.",chartHeading:"Chart graphic.",chartContainerLabel:"Interactive chart. {title}. Use up and down arrows to navigate with most screen readers.",rangeSelectorMinInput:"Select start date.",rangeSelectorMaxInput:"Select end date.",tableSummary:"Table representation of chart.",mapZoomIn:"Zoom chart",mapZoomOut:"Zoom out chart",rangeSelectorButton:"Select range {buttonText}",legendItem:"Toggle visibility of series {itemName}",svgContainerTitle:"{chartTitle}",seriesTypeDescriptions:{boxplot:"Box plot charts are typically used to display groups of statistical data. Each data point in the chart can have up to 5 values: minimum, lower quartile, median, upper quartile, and maximum.",arearange:"Arearange charts are line charts displaying a range between a lower and higher value for each point.",areasplinerange:"These charts are line charts displaying a range between a lower and higher value for each point.",bubble:"Bubble charts are scatter charts where each data point also has a size value.",columnrange:"Columnrange charts are column charts displaying a range between a lower and higher value for each point.",errorbar:"Errorbar series are used to display the variability of the data.",funnel:"Funnel charts are used to display reduction of data in stages.",pyramid:"Pyramid charts consist of a single pyramid with item heights corresponding to each point value.",waterfall:"A waterfall chart is a column chart where each column contributes towards a total end value."},chartTypes:{emptyChart:"Empty chart",mapTypeDescription:"Map of {mapTitle} with {numSeries} data series.",unknownMap:"Map of unspecified region with {numSeries} data series.",combinationChart:"Combination chart with {numSeries} data series.",defaultSingle:"Chart with {numPoints} data {#plural(numPoints, points, point)}.",defaultMultiple:"Chart with {numSeries} data series.",splineSingle:"Line chart with {numPoints} data {#plural(numPoints, points, point)}.",splineMultiple:"Line chart with {numSeries} lines.",lineSingle:"Line chart with {numPoints} data {#plural(numPoints, points, point)}.",lineMultiple:"Line chart with {numSeries} lines.",columnSingle:"Bar chart with {numPoints} {#plural(numPoints, bars, bar)}.",columnMultiple:"Bar chart with {numSeries} data series.",barSingle:"Bar chart with {numPoints} {#plural(numPoints, bars, bar)}.",barMultiple:"Bar chart with {numSeries} data series.",pieSingle:"Pie chart with {numPoints} {#plural(numPoints, slices, slice)}.",pieMultiple:"Pie chart with {numSeries} pies.",scatterSingle:"Scatter chart with {numPoints} {#plural(numPoints, points, point)}.",scatterMultiple:"Scatter chart with {numSeries} data series.",boxplotSingle:"Boxplot with {numPoints} {#plural(numPoints, boxes, box)}.",boxplotMultiple:"Boxplot with {numSeries} data series.",bubbleSingle:"Bubble chart with {numPoints} {#plural(numPoints, bubbles, bubble)}.",bubbleMultiple:"Bubble chart with {numSeries} data series."},axis:{xAxisDescriptionSingular:"The chart has 1 X axis displaying {names[0]}.",xAxisDescriptionPlural:"The chart has {numAxes} X axes displaying {#each(names, -1) }and {names[-1]}",yAxisDescriptionSingular:"The chart has 1 Y axis displaying {names[0]}.",yAxisDescriptionPlural:"The chart has {numAxes} Y axes displaying {#each(names, -1) }and {names[-1]}"},exporting:{chartMenuLabel:"Chart export",menuButtonLabel:"View export menu",exportRegionLabel:"Chart export menu"},series:{summary:{default:"{name}, series {ix} of {numSeries} with {numPoints} data {#plural(numPoints, points, point)}.",defaultCombination:"{name}, series {ix} of {numSeries} with {numPoints} data {#plural(numPoints, points, point)}.",line:"{name}, line {ix} of {numSeries} with {numPoints} data {#plural(numPoints, points, point)}.",lineCombination:"{name}, series {ix} of {numSeries}. Line with {numPoints} data {#plural(numPoints, points, point)}.",spline:"{name}, line {ix} of {numSeries} with {numPoints} data {#plural(numPoints, points, point)}.",splineCombination:"{name}, series {ix} of {numSeries}. Line with {numPoints} data {#plural(numPoints, points, point)}.",column:"{name}, bar series {ix} of {numSeries} with {numPoints} {#plural(numPoints, bars, bar)}.",columnCombination:"{name}, series {ix} of {numSeries}. Bar series with {numPoints} {#plural(numPoints, bars, bar)}.",bar:"{name}, bar series {ix} of {numSeries} with {numPoints} {#plural(numPoints, bars, bar)}.",barCombination:"{name}, series {ix} of {numSeries}. Bar series with {numPoints} {#plural(numPoints, bars, bar)}.",pie:"{name}, pie {ix} of {numSeries} with {numPoints} {#plural(numPoints, slices, slice)}.",pieCombination:"{name}, series {ix} of {numSeries}. Pie with {numPoints} {#plural(numPoints, slices, slice)}.",scatter:"{name}, scatter plot {ix} of {numSeries} with {numPoints} {#plural(numPoints, points, point)}.",scatterCombination:"{name}, series {ix} of {numSeries}, scatter plot with {numPoints} {#plural(numPoints, points, point)}.",boxplot:"{name}, boxplot {ix} of {numSeries} with {numPoints} {#plural(numPoints, boxes, box)}.",boxplotCombination:"{name}, series {ix} of {numSeries}. Boxplot with {numPoints} {#plural(numPoints, boxes, box)}.",bubble:"{name}, bubble series {ix} of {numSeries} with {numPoints} {#plural(numPoints, bubbles, bubble)}.",bubbleCombination:"{name}, series {ix} of {numSeries}. Bubble series with {numPoints} {#plural(numPoints, bubbles, bubble)}.",map:"{name}, map {ix} of {numSeries} with {numPoints} {#plural(numPoints, areas, area)}.",mapCombination:"{name}, series {ix} of {numSeries}. Map with {numPoints} {#plural(numPoints, areas, area)}.",mapline:"{name}, line {ix} of {numSeries} with {numPoints} data {#plural(numPoints, points, point)}.",maplineCombination:"{name}, series {ix} of {numSeries}. Line with {numPoints} data {#plural(numPoints, points, point)}.",mapbubble:"{name}, bubble series {ix} of {numSeries} with {numPoints} {#plural(numPoints, bubbles, bubble)}.",mapbubbleCombination:"{name}, series {ix} of {numSeries}. Bubble series with {numPoints} {#plural(numPoints, bubbles, bubble)}."},description:"{description}",xAxisDescription:"X axis, {name}",yAxisDescription:"Y axis, {name}"}}}})}))(t);((function(t){function e(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#x27;").replace(/\//g,"&#x2F;")}function i(t){return"string"==typeof t?t.replace(/<\/?[^>]+(>|$)/g,""):t}var n=t.win.document,r=t.each,o=t.map,s=t.erase,a=t.addEvent,l=t.merge,h={position:"absolute",left:"-9999px",top:"auto",width:"1px",height:"1px",overflow:"hidden"}
+t.Series.prototype.commonKeys="name id category x value y".split(" ")
+t.Series.prototype.specialKeys="z open high q3 median q1 low close".split(" ")
+t.seriesTypes.pie&&(t.seriesTypes.pie.prototype.specialKeys=[])
+t.setOptions({accessibility:{enabled:!0,pointDescriptionThreshold:!1,screenReaderSectionFormatter:function(t){var i=t.options,n=t.types||[],r={chart:t,numSeries:t.series&&t.series.length}
+n=(1===n.length&&"pie"===n[0]||"map"===n[0])&&{}||t.getAxesDescription()
+return"<div>"+t.langFormat("accessibility.navigationHint",r)+"</div><h3>"+(i.title.text?e(i.title.text):t.langFormat("accessibility.defaultChartTitle",r))+(i.subtitle&&i.subtitle.text?". "+e(i.subtitle.text):"")+"</h3><h4>"+t.langFormat("accessibility.longDescriptionHeading",r)+"</h4><div>"+(i.chart.description||t.langFormat("accessibility.noDescription",r))+"</div><h4>"+t.langFormat("accessibility.structureHeading",r)+"</h4><div>"+(i.chart.typeDescription||t.getTypeDescription())+"</div>"+(n.xAxis?"<div>"+n.xAxis+"</div>":"")+(n.yAxis?"<div>"+n.yAxis+"</div>":"")}}})
+t.addEvent(t.Series,"afterRender",(function(){this.chart.options.accessibility.enabled&&this.setA11yDescription()}))
+t.Series.prototype.setA11yDescription=function(){var t=this.chart.options.accessibility,e=this.points&&this.points.length&&this.points[0].graphic&&this.points[0].graphic.element,n=e&&e.parentNode||this.graph&&this.graph.element||this.group&&this.group.element
+n&&(n.lastChild===e&&(function(t){for(var e=t.childNodes.length;e--;)t.appendChild(t.childNodes[e])})(n),this.points&&(this.points.length<t.pointDescriptionThreshold||!1===t.pointDescriptionThreshold)&&r(this.points,(function(e){e.graphic&&(e.graphic.element.setAttribute("role","img"),e.graphic.element.setAttribute("tabindex","-1"),e.graphic.element.setAttribute("aria-label",i(e.series.options.pointDescriptionFormatter&&e.series.options.pointDescriptionFormatter(e)||t.pointDescriptionFormatter&&t.pointDescriptionFormatter(e)||e.buildPointInfoString())))})),1<this.chart.series.length||t.describeSingleSeries)&&(n.setAttribute("role",this.options.exposeElementToA11y?"img":"region"),n.setAttribute("tabindex","-1"),n.setAttribute("aria-label",i(t.seriesDescriptionFormatter&&t.seriesDescriptionFormatter(this)||this.buildSeriesInfoString())))}
+t.Series.prototype.buildSeriesInfoString=function(){var t=this.chart,e=(e=this.description||this.options.description)&&t.langFormat("accessibility.series.description",{description:e,series:this}),i=t.langFormat("accessibility.series.xAxisDescription",{name:this.xAxis&&this.xAxis.getDescription(),series:this}),n=t.langFormat("accessibility.series.yAxisDescription",{name:this.yAxis&&this.yAxis.getDescription(),series:this}),r={name:this.name||"",ix:this.index+1,numSeries:t.series.length,numPoints:this.points.length,series:this},o=1===t.types.length?"":"Combination"
+return(t.langFormat("accessibility.series.summary."+this.type+o,r)||t.langFormat("accessibility.series.summary.default"+o,r))+(e?" "+e:"")+(1<t.yAxis.length&&this.yAxis?" "+n:"")+(1<t.xAxis.length&&this.xAxis?" "+i:"")}
+t.Point.prototype.buildPointInfoString=function(){var e=this,i=e.series,n=i.chart.options.accessibility,o="",s=i.xAxis&&i.xAxis.isDatetimeAxis
+n=s&&i.chart.time.dateFormat(n.pointDateFormatter&&n.pointDateFormatter(e)||n.pointDateFormat||t.Tooltip.prototype.getXDateFormat.call({getDateFormat:t.Tooltip.prototype.getDateFormat,chart:i.chart},e,i.chart.options.tooltip,i.xAxis),e.x)
+t.find(i.specialKeys,(function(t){return void 0!==e[t]}))?(s&&(o=n),r(i.commonKeys.concat(i.specialKeys),(function(t){void 0===e[t]||s&&"x"===t||(o+=(o?". ":"")+t+", "+e[t])}))):o=(this.name||n||this.category||this.id||"x, "+this.x)+", "+(void 0!==this.value?this.value:this.y)
+return this.index+1+". "+o+"."+(this.description?" "+this.description:"")}
+t.Axis.prototype.getDescription=function(){return this.userOptions&&this.userOptions.description||this.axisTitle&&this.axisTitle.textStr||this.options.id||this.categories&&"categories"||this.isDatetimeAxis&&"Time"||"values"}
+a(t.Series,"afterInit",(function(){var t=this.chart
+t.options.accessibility.enabled&&(t.types=t.types||[],0>t.types.indexOf(this.type)&&t.types.push(this.type))}))
+a(t.Series,"remove",(function(){var t=this.chart,e=this,i=!1
+r(t.series,(function(n){n!==e&&0>t.types.indexOf(e.type)&&(i=!0)}))
+i||s(t.types,e.type)}))
+t.Chart.prototype.getTypeDescription=function(){var t=this.types&&this.types[0],e=(n=this.series&&this.series[0]||{}).mapTitle,i=this.langFormat("accessibility.seriesTypeDescriptions."+t,{chart:this}),n={numSeries:this.series.length,numPoints:n.points&&n.points.length,chart:this,mapTitle:e},r=this.series&&1===this.series.length?"Single":"Multiple"
+return t?"map"===t?e?this.langFormat("accessibility.chartTypes.mapTypeDescription",n):this.langFormat("accessibility.chartTypes.unknownMap",n):1<this.types.length?this.langFormat("accessibility.chartTypes.combinationChart",n):(this.langFormat("accessibility.chartTypes."+t+r,n)||this.langFormat("accessibility.chartTypes.default"+r,n))+(i?" "+i:""):this.langFormat("accessibility.chartTypes.emptyChart",n)}
+t.Chart.prototype.getAxesDescription=function(){var t=this.xAxis.length,e=this.yAxis.length,i={}
+t&&(i.xAxis=this.langFormat("accessibility.axis.xAxisDescription"+(1<t?"Plural":"Singular"),{chart:this,names:o(this.xAxis,(function(t){return t.getDescription()})),numAxes:t}))
+e&&(i.yAxis=this.langFormat("accessibility.axis.yAxisDescription"+(1<e?"Plural":"Singular"),{chart:this,names:o(this.yAxis,(function(t){return t.getDescription()})),numAxes:e}))
+return i}
+t.Chart.prototype.addAccessibleContextMenuAttribs=function(){var t=this.exportDivElements
+t&&(r(t,(function(t){"DIV"!==t.tagName||t.children&&t.children.length||(t.setAttribute("role","menuitem"),t.setAttribute("tabindex",-1))})),t[0].parentNode.setAttribute("role","menu"),t[0].parentNode.setAttribute("aria-label",this.langFormat("accessibility.exporting.chartMenuLabel",{chart:this})))}
+t.Chart.prototype.addScreenReaderRegion=function(t,e){var i=this,r=i.screenReaderRegion=n.createElement("div"),o=n.createElement("h4"),s=n.createElement("a"),a=n.createElement("h4")
+r.setAttribute("id",t)
+r.setAttribute("role","region")
+r.setAttribute("aria-label",i.langFormat("accessibility.screenReaderRegionLabel",{chart:this}))
+r.innerHTML=i.options.accessibility.screenReaderSectionFormatter(i)
+i.getCSV&&(s.innerHTML=i.langFormat("accessibility.viewAsDataTable",{chart:i}),s.href="#"+e,s.setAttribute("tabindex","-1"),s.onclick=i.options.accessibility.onTableAnchorClick||function(){i.viewData()
+n.getElementById(e).focus()},o.appendChild(s),r.appendChild(o))
+a.innerHTML=i.langFormat("accessibility.chartHeading",{chart:i})
+i.renderTo.insertBefore(a,i.renderTo.firstChild)
+i.renderTo.insertBefore(r,i.renderTo.firstChild)
+l(!0,a.style,h)
+l(!0,r.style,h)}
+t.Chart.prototype.callbacks.push((function(e){var o=e.options
+if(o.accessibility.enabled){var s=e.container.getElementsByTagName("desc")[0],a=e.container.getElementsByTagName("text"),l="highcharts-title-"+e.index,h="highcharts-data-table-"+e.index,u="highcharts-information-region-"+e.index,c=o.title.text||e.langFormat("accessibility.defaultChartTitle",{chart:e}),p=i(e.langFormat("accessibility.svgContainerTitle",{chartTitle:c}))
+p.length&&((o=n.createElementNS("http://www.w3.org/2000/svg","title")).textContent=p,o.id=l,s.parentNode.insertBefore(o,s))
+e.renderTo.setAttribute("role","region")
+e.renderTo.setAttribute("aria-label",e.langFormat("accessibility.chartContainerLabel",{title:i(c),chart:e}))
+if(e.exportSVGElements&&e.exportSVGElements[0]&&e.exportSVGElements[0].element){var d=(s=e.exportSVGElements[0].element).onclick
+s.onclick=function(){d.apply(this,Array.prototype.slice.call(arguments))
+e.addAccessibleContextMenuAttribs()
+e.highlightExportItem(0)}
+s.setAttribute("role","button")
+s.setAttribute("aria-label",e.langFormat("accessibility.exporting.menuButtonLabel",{chart:e}))
+e.exportingGroup.element.setAttribute("role","region")
+e.exportingGroup.element.setAttribute("aria-label",e.langFormat("accessibility.exporting.exportRegionLabel",{chart:e}))}e.rangeSelector&&r(["minInput","maxInput"],(function(t,i){e.rangeSelector[t]&&(e.rangeSelector[t].setAttribute("tabindex","-1"),e.rangeSelector[t].setAttribute("role","textbox"),e.rangeSelector[t].setAttribute("aria-label",e.langFormat("accessibility.rangeSelector"+(i?"MaxInput":"MinInput"),{chart:e})))}))
+r(a,(function(t){t.setAttribute("aria-hidden","true")}))
+e.addScreenReaderRegion(u,h)
+t.wrap(e,"getTable",(function(t){return t.apply(this,Array.prototype.slice.call(arguments,1)).replace("<table>",'<table id="'+h+'" summary="'+e.langFormat("accessibility.tableSummary",{chart:e})+'">')}))}}))}))(t);((function(t){function e(t){var e=t.index,i=t.series.points,n=i.length
+if(i[e]===t)return e
+for(;n--;)if(i[n]===t)return n}function i(t,e){this.chart=t
+this.id=e.id
+this.keyCodeMap=e.keyCodeMap
+this.validate=e.validate
+this.init=e.init
+this.terminate=e.terminate}function n(t){var e
+t&&t.onclick&&l.createEvent&&((e=l.createEvent("Events")).initEvent("click",!0,!1),t.onclick(e))}function r(t){var e=t.chart.options.accessibility
+return t.options.skipKeyboardNavigation||!1===t.options.enableMouseTracking||!t.visible||e.pointDescriptionThreshold&&e.pointDescriptionThreshold<=t.points.length}function o(t){var e=t.series.chart.options.accessibility
+return t.isNull&&e.keyboardNavigation.skipNullPoints||!1===t.visible||r(t.series)}var s,a=t.win,l=a.document,h=t.each,u=t.addEvent,c=t.fireEvent,p=t.merge,d=t.pick
+t.extend(t.SVGElement.prototype,{addFocusBorder:function(t,e){this.focusBorder&&this.removeFocusBorder()
+var i=this.getBBox()
+t=d(t,3)
+this.focusBorder=this.renderer.rect(i.x-t,i.y-t,i.width+2*t,i.height+2*t,e&&e.borderRadius).addClass("highcharts-focus-border").attr({stroke:e&&e.stroke,"stroke-width":e&&e.strokeWidth}).attr({zIndex:99}).add(this.parentGroup)},removeFocusBorder:function(){this.focusBorder&&(this.focusBorder.destroy(),delete this.focusBorder)}})
+t.Series.prototype.keyboardMoveVertical=!0
+h(["column","pie"],(function(e){t.seriesTypes[e]&&(t.seriesTypes[e].prototype.keyboardMoveVertical=!1)}))
+t.setOptions({accessibility:{keyboardNavigation:{enabled:!0,focusBorder:{enabled:!0,hideBrowserFocusOutline:!0,style:{color:"#335cad",lineWidth:2,borderRadius:3},margin:2},skipNullPoints:!0}}})
+i.prototype={run:function(t){var e=this,i=t.which||t.keyCode,n=!1,r=!1
+h(this.keyCodeMap,(function(o){-1<o[0].indexOf(i)&&(n=!0,r=!1!==o[1].call(e,i,t))}))
+n||9!==i||(r=this.move(t.shiftKey?-1:1))
+return r},move:function(t){var e=this.chart
+this.terminate&&this.terminate(t)
+e.keyboardNavigationModuleIndex+=t
+var i=e.keyboardNavigationModules[e.keyboardNavigationModuleIndex]
+e.focusElement&&e.focusElement.removeFocusBorder()
+if(i){if(i.validate&&!i.validate())return this.move(t)
+if(i.init)return i.init(t),!0}e.keyboardNavigationModuleIndex=0
+0<t?(this.chart.exiting=!0,this.chart.tabExitAnchor.focus()):this.chart.renderTo.focus()
+return!1}}
+t.Axis.prototype.panStep=function(t,e){var i=e||3,n=((e=this.getExtremes()).max-e.min)/i*t,r=(i=e.max+n)-(n=e.min+n)
+0>t&&n<e.dataMin?i=(n=e.dataMin)+r:0<t&&i>e.dataMax&&(n=(i=e.dataMax)-r)
+this.setExtremes(n,i)}
+t.Chart.prototype.setFocusToElement=function(t,e){var i=this.options.accessibility.keyboardNavigation.focusBorder;(e=e||t).element&&e.element.focus&&(e.element.focus(),i.hideBrowserFocusOutline&&e.css({outline:"none"}))
+i.enabled&&(this.focusElement&&this.focusElement.removeFocusBorder(),t.addFocusBorder(i.margin,{stroke:i.style.color,strokeWidth:i.style.lineWidth,borderRadius:i.style.borderRadius}),this.focusElement=t)}
+t.Point.prototype.highlight=function(){var t=this.series.chart
+this.isNull?t.tooltip&&t.tooltip.hide(0):this.onMouseOver()
+this.graphic&&t.setFocusToElement(this.graphic)
+t.highlightedPoint=this
+return this}
+t.Chart.prototype.highlightAdjacentPoint=function(t){var i=this.series,n=this.highlightedPoint,s=n&&e(n)||0,a=n&&n.series.points,l=(l=this.series&&this.series[this.series.length-1])&&l.points&&l.points[l.points.length-1]
+if(!i[0]||!i[0].points)return!1
+if(n){if(i=i[n.series.index+(t?1:-1)],!(s=a[s+(t?1:-1)])&&i&&(s=i.points[t?0:i.points.length-1]),!s)return!1}else s=t?i[0].points[0]:l
+return o(s)?(r(i=s.series)?this.highlightedPoint=t?i.points[i.points.length-1]:i.points[0]:this.highlightedPoint=s,this.highlightAdjacentPoint(t)):s.highlight()}
+t.Series.prototype.highlightFirstValidPoint=function(){var t=this.chart.highlightedPoint,i=(t&&t.series)===this?e(t):0
+if(t=this.points){for(var n=i,r=t.length;n<r;++n)if(!o(t[n]))return t[n].highlight()
+for(;0<=i;--i)if(!o(t[i]))return t[i].highlight()}return!1}
+t.Chart.prototype.highlightAdjacentSeries=function(t){var e,i,n=this.highlightedPoint,o=(e=this.series&&this.series[this.series.length-1])&&e.points&&e.points[e.points.length-1]
+if(!this.highlightedPoint)return e=t?this.series&&this.series[0]:e,!!(i=t?e&&e.points&&e.points[0]:o)&&i.highlight()
+if(!(e=this.series[n.series.index+(t?-1:1)]))return!1
+o=1/0
+var s,a=e.points.length
+if(void 0===n.plotX||void 0===n.plotY)i=void 0
+else{for(;a--;)void 0!==(s=e.points[a]).plotX&&void 0!==s.plotY&&((s=(n.plotX-s.plotX)*(n.plotX-s.plotX)*4+(n.plotY-s.plotY)*(n.plotY-s.plotY)*1)<o&&(o=s,i=a))
+i=void 0!==i&&e.points[i]}if(!i)return!1
+if(r(e))return i.highlight(),(t=this.highlightAdjacentSeries(t))||(n.highlight(),!1)
+i.highlight()
+return i.series.highlightFirstValidPoint()}
+t.Chart.prototype.highlightAdjacentPointVertical=function(t){var e,i=this.highlightedPoint,n=1/0
+if(void 0===i.plotX||void 0===i.plotY)return!1
+h(this.series,(function(s){r(s)||h(s.points,(function(r){if(void 0!==r.plotY&&void 0!==r.plotX&&r!==i){var a=r.plotY-i.plotY,l=Math.abs(r.plotX-i.plotX)
+l=Math.abs(a)*Math.abs(a)+l*l*4
+s.yAxis.reversed&&(a*=-1)
+!(0>a&&t||0<a&&!t||5>l||o(r))&&l<n&&(n=l,e=r)}}))}))
+return!!e&&e.highlight()}
+t.Chart.prototype.showExportMenu=function(){this.exportSVGElements&&this.exportSVGElements[0]&&(this.exportSVGElements[0].element.onclick(),this.highlightExportItem(0))}
+t.Chart.prototype.hideExportMenu=function(){var t=this.exportDivElements
+t&&this.exportContextMenu&&(h(t,(function(t){"highcharts-menu-item"===t.className&&t.onmouseout&&t.onmouseout()})),this.highlightedExportItem=0,this.exportContextMenu.hideMenu(),this.container.focus())}
+t.Chart.prototype.highlightExportItem=function(t){var e=this.exportDivElements&&this.exportDivElements[t],i=this.exportDivElements&&this.exportDivElements[this.highlightedExportItem]
+if(e&&"DIV"===e.tagName&&(!e.children||!e.children.length)){e.focus&&s&&e.focus()
+i&&i.onmouseout&&i.onmouseout()
+e.onmouseover&&e.onmouseover()
+this.highlightedExportItem=t
+return!0}}
+t.Chart.prototype.highlightLastExportItem=function(){var t
+if(this.exportDivElements)for(t=this.exportDivElements.length;t--&&!this.highlightExportItem(t););}
+t.Chart.prototype.highlightRangeSelectorButton=function(t){var e=this.rangeSelector.buttons
+e[this.highlightedRangeSelectorItemIx]&&e[this.highlightedRangeSelectorItemIx].setState(this.oldRangeSelectorItemState||0)
+this.highlightedRangeSelectorItemIx=t
+return!!e[t]&&(this.setFocusToElement(e[t].box,e[t]),this.oldRangeSelectorItemState=e[t].state,e[t].setState(2),!0)}
+t.Chart.prototype.highlightLegendItem=function(t){var e=this.legend.allItems,i=this.highlightedLegendItemIx
+return!!e[t]&&(e[i]&&c(e[i].legendGroup.element,"mouseout"),void 0!==e[t].pageIx&&e[t].pageIx+1!==this.legend.currentPage&&this.legend.scroll(1+e[t].pageIx-this.legend.currentPage),this.highlightedLegendItemIx=t,this.setFocusToElement(e[t].legendItem,e[t].legendGroup),c(e[t].legendGroup.element,"mouseover"),!0)}
+t.Chart.prototype.addKeyboardNavigationModules=function(){function t(t,n,r){return new i(e,p({keyCodeMap:n},{id:t},r))}var e=this
+e.keyboardNavigationModules=[t("entry",[]),t("points",[[[37,39],function(t){t=39===t
+return!!e.highlightAdjacentPoint(t)||this.init(t?1:-1)}],[[38,40],function(t){t=38!==t
+var i=e.options.accessibility.keyboardNavigation
+if(i.mode&&"serialize"===i.mode)return!!e.highlightAdjacentPoint(t)||this.init(t?1:-1)
+e[e.highlightedPoint&&e.highlightedPoint.series.keyboardMoveVertical?"highlightAdjacentPointVertical":"highlightAdjacentSeries"](t)
+return!0}],[[13,32],function(){e.highlightedPoint&&e.highlightedPoint.firePointEvent("click")}]],{init:function(t){var i=e.series.length,n=0<t?0:i
+if(0<t)for(delete e.highlightedPoint;n<i;){if(t=e.series[n].highlightFirstValidPoint())return t;++n}else for(;n--;)if(e.highlightedPoint=e.series[n].points[e.series[n].points.length-1],t=e.series[n].highlightFirstValidPoint())return t},terminate:function(){e.tooltip&&e.tooltip.hide(0)
+delete e.highlightedPoint}}),t("exporting",[[[37,38],function(){for(var t=e.highlightedExportItem||0,i=!0;t--;)if(e.highlightExportItem(t)){i=!1
+break}if(i)return e.highlightLastExportItem(),!0}],[[39,40],function(){for(var t=!0,i=(e.highlightedExportItem||0)+1;i<e.exportDivElements.length;++i)if(e.highlightExportItem(i)){t=!1
+break}if(t)return e.highlightExportItem(0),!0}],[[13,32],function(){n(e.exportDivElements[e.highlightedExportItem])}]],{validate:function(){return e.exportChart&&!(e.options.exporting&&!1===e.options.exporting.enabled)},init:function(t){e.highlightedPoint=null
+e.showExportMenu()
+0>t&&e.highlightLastExportItem()},terminate:function(){e.hideExportMenu()}}),t("mapZoom",[[[38,40,37,39],function(t){e[38===t||40===t?"yAxis":"xAxis"][0].panStep(39>t?-1:1)}],[[9],function(t,i){e.mapNavButtons[e.focusedMapNavButtonIx].setState(0)
+if(i.shiftKey&&!e.focusedMapNavButtonIx||!i.shiftKey&&e.focusedMapNavButtonIx)return e.mapZoom(),this.move(i.shiftKey?-1:1)
+e.focusedMapNavButtonIx+=i.shiftKey?-1:1
+t=e.mapNavButtons[e.focusedMapNavButtonIx]
+e.setFocusToElement(t.box,t)
+t.setState(2)}],[[13,32],function(){n(e.mapNavButtons[e.focusedMapNavButtonIx].element)}]],{validate:function(){return e.mapZoom&&e.mapNavButtons&&2===e.mapNavButtons.length},init:function(t){var i=e.mapNavButtons[0],n=e.mapNavButtons[1]
+i=0<t?i:n
+h(e.mapNavButtons,(function(t,i){t.element.setAttribute("tabindex",-1)
+t.element.setAttribute("role","button")
+t.element.setAttribute("aria-label",e.langFormat("accessibility.mapZoom"+(i?"Out":"In"),{chart:e}))}))
+e.setFocusToElement(i.box,i)
+i.setState(2)
+e.focusedMapNavButtonIx=0<t?0:1}}),t("rangeSelector",[[[37,39,38,40],function(t){t=37===t||38===t?-1:1
+if(!e.highlightRangeSelectorButton(e.highlightedRangeSelectorItemIx+t))return this.move(t)}],[[13,32],function(){3!==e.oldRangeSelectorItemState&&n(e.rangeSelector.buttons[e.highlightedRangeSelectorItemIx].element)}]],{validate:function(){return e.rangeSelector&&e.rangeSelector.buttons&&e.rangeSelector.buttons.length},init:function(t){h(e.rangeSelector.buttons,(function(t){t.element.setAttribute("tabindex","-1")
+t.element.setAttribute("role","button")
+t.element.setAttribute("aria-label",e.langFormat("accessibility.rangeSelectorButton",{chart:e,buttonText:t.text&&t.text.textStr}))}))
+e.highlightRangeSelectorButton(0<t?0:e.rangeSelector.buttons.length-1)}}),t("rangeSelectorInput",[[[9,38,40],function(t,i){t=9===t&&i.shiftKey||38===t?-1:1
+if(1<(i=e.highlightedInputRangeIx+=t)||0>i)return this.move(t)
+e.rangeSelector[i?"maxInput":"minInput"].focus()}]],{validate:function(){return e.rangeSelector&&e.rangeSelector.inputGroup&&"hidden"!==e.rangeSelector.inputGroup.element.getAttribute("visibility")&&!1!==e.options.rangeSelector.inputEnabled&&e.rangeSelector.minInput&&e.rangeSelector.maxInput},init:function(t){e.highlightedInputRangeIx=0<t?0:1
+e.rangeSelector[e.highlightedInputRangeIx?"maxInput":"minInput"].focus()}}),t("legend",[[[37,39,38,40],function(t){t=37===t||38===t?-1:1
+!e.highlightLegendItem(e.highlightedLegendItemIx+t)&&1<e.legend.allItems.length&&this.init(t)}],[[13,32],function(){var t=e.legend.allItems[e.highlightedLegendItemIx].legendItem.element
+n(e.legend.options.useHTML?t:t.parentNode)}]],{validate:function(){return e.legend&&e.legend.allItems&&e.legend.display&&!(e.colorAxis&&e.colorAxis.length)&&!1!==(e.options.legend&&e.options.legend.keyboardNavigation&&e.options.legend.keyboardNavigation.enabled)},init:function(t){h(e.legend.allItems,(function(t){t.legendGroup.element.setAttribute("tabindex","-1")
+t.legendGroup.element.setAttribute("role","button")
+t.legendGroup.element.setAttribute("aria-label",e.langFormat("accessibility.legendItem",{chart:e,itemName:(i=t.name,"string"==typeof i?i.replace(/<\/?[^>]+(>|$)/g,""):i)}))
+var i}))
+e.highlightLegendItem(0<t?0:e.legend.allItems.length-1)}})]}
+t.Chart.prototype.addExitAnchor=function(){var t=this
+t.tabExitAnchor=l.createElement("div")
+t.tabExitAnchor.setAttribute("tabindex","0")
+p(!0,t.tabExitAnchor.style,{position:"absolute",left:"-9999px",top:"auto",width:"1px",height:"1px",overflow:"hidden"})
+t.renderTo.appendChild(t.tabExitAnchor)
+return u(t.tabExitAnchor,"focus",(function(e){e=e||a.event
+t.exiting?t.exiting=!1:(t.renderTo.focus(),e.preventDefault(),t.keyboardNavigationModuleIndex=t.keyboardNavigationModules.length-1,(e=t.keyboardNavigationModules[t.keyboardNavigationModuleIndex]).validate&&!e.validate()?e.move(-1):e.init(-1))}))}
+t.Chart.prototype.resetKeyboardNavigation=function(){var t=this.keyboardNavigationModules&&this.keyboardNavigationModules[this.keyboardNavigationModuleIndex||0]
+t&&t.terminate&&t.terminate()
+this.focusElement&&this.focusElement.removeFocusBorder()
+this.keyboardNavigationModuleIndex=0
+this.keyboardReset=!0}
+t.addEvent(t.Series,"destroy",(function(){var t=this.chart
+t.highlightedPoint&&t.highlightedPoint.series===this&&(delete t.highlightedPoint,t.focusElement&&t.focusElement.removeFocusBorder())}))
+t.Chart.prototype.callbacks.push((function(t){var e=t.options.accessibility
+e.enabled&&e.keyboardNavigation.enabled&&(s=!!t.renderTo.getElementsByTagName("g")[0].focus,t.addKeyboardNavigationModules(),t.keyboardNavigationModuleIndex=0,t.container.hasAttribute&&!t.container.hasAttribute("tabIndex")&&t.container.setAttribute("tabindex","0"),t.tabExitAnchor||(t.unbindExitAnchorFocus=t.addExitAnchor()),t.unbindKeydownHandler=u(t.renderTo,"keydown",(function(e){e=e||a.event
+var i=t.keyboardNavigationModules[t.keyboardNavigationModuleIndex]
+t.keyboardReset=!1
+i&&i.run(e)&&e.preventDefault()})),t.unbindBlurHandler=u(l,"mouseup",(function(){t.keyboardReset||t.pointer&&t.pointer.chartPosition||t.resetKeyboardNavigation()})),u(t,"destroy",(function(){t.resetKeyboardNavigation()
+t.unbindExitAnchorFocus&&t.tabExitAnchor&&t.unbindExitAnchorFocus()
+t.unbindKeydownHandler&&t.renderTo&&t.unbindKeydownHandler()
+t.unbindBlurHandler&&t.unbindBlurHandler()})))}))}))(t)}))
+
+//# sourceMappingURL=accessibility.map
