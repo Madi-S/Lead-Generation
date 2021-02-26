@@ -2,6 +2,12 @@ import logging
 
 
 def get_logger(name: str):
+    '''
+    Get full configured logger with pre-build handlers and formatters
+
+    :param name: Name of the logger
+    :return: returns full-fledged logger
+    '''
     
     if isinstance(name, str):
 
