@@ -17,9 +17,8 @@ sys.path.append('..')
 from webdriver import Webdriver
 from logger_config import get_logger
 
+
 logger = get_logger('webdriver.yelp')
-
-
 ua = UserAgent()
 
 
@@ -77,15 +76,24 @@ class Yelp(Webdriver):
         def parse(html):
             soup = BeautifulSoup(html, 'html.parser')
 
-            raw_data = json.loads(soup.find('script', attrs=json_attrs).string)
+            try:
+                raw_data = json.loads(soup.find('script', attrs=json_attrs).string)
+            except AttributeError:
+                logger.warning('Could not locate `raw_data` skipping current page')
+                return
+
             try:
                 website = soup.find(attrs=website_attrs).text
             except:
                 website = '-'
+
             try:
-                data = {'Title': raw_data['name'],
-                    'Address': ', '.join(list(raw_data['address'].values())), 'WebSite': website,
-                    'PhoneNumber': raw_data['telephone']}
+                data = {
+                        'WebSite': website,
+                        'Title': raw_data['name'],
+                        'PhoneNumber': raw_data['telephone'],
+                        'Address': ', '.join(list(raw_data['address'].values())),
+                        }
                 logger.debug('Extracted: %s', list(data.values()))
                 self._buf.store(data)
             except Exception:
