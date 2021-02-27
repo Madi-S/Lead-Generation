@@ -1,5 +1,6 @@
-from flask import render_template, redirect, url_for, request, session
-from app import app, db, recaptcha
+from flask import render_template, redirect, url_for, request, flash, session
+from forms import UserRegistrationForm, UserLoginForm
+from app import app, db
 from models import User
 
 from functools import wraps
@@ -55,11 +56,40 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    # if recaptcha.verify():
-    # session['user_id'] = user.id
-    return render_template('register.html')
+    form = UserRegistrationForm()
+
+    if request.method == 'GET':        
+        return render_template('register.html', form=form)
+
+    else:
+        if form.validate_on_submit():
+            first_name = form.first_name.data
+            last_name = form.last_name.data
+            username = form.username.data
+            password = form.password.data
+
+            user = User.create(password,
+                                first_name=first_name,
+                                last_name=last_name,
+                                username=username)
+            session['user_id'] = user.id
+            session['username'] = user.username
+            return redirect(url_for('main'))
+        else:
+            flash('Submit Recaptcha!', 'danger')
+            return redirect(url_for('register'))
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('main'))
 
 
 @app.route('/profile')
@@ -79,7 +109,7 @@ def generate_leads():
 
 @app.route('/subscriptions')
 def subscriptions():
-    return 'Subscriptions here'
+    return render_template('subscriptions.html')
 
 
 @app.errorhandler(404)
