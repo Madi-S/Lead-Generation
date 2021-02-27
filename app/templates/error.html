@@ -4,5 +4,10 @@
     {{ error }}
 {% endblock %}
 
-<h1>Oops! This page does not exist</h1>
-<h2>Try using the navbar above to navigate on the website</h2>
+{% block content_title %}
+    Oops! This page does not exist
+{% endblock %}
+
+{% block content %}
+    <h2>Try using the navbar above to navigate on the website</h2>
+{% endblock %}
