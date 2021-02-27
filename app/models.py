@@ -17,6 +17,12 @@ class SecretMixin:
         return obj
 
     @classmethod
+    def validate_user(cls, username, pwd):
+        obj = cls.query.filter_by(password=pwd).first()
+        if obj and obj.password == encrypt(pwd):
+            return True
+        
+    @classmethod
     def update_pwd(cls, id, pwd):
         pass
 
