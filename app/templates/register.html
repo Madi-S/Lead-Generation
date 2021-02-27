@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+
+
+{% block title %}
+    Lead Generator registration page
+{% endblock %}
+
+{% block content_title %}
+    Lead Generator registration page
+{% endblock %}
+
+{% block content %}
+
+
+<form action="{{ url_for('register') }}" method="POST">
+    {{ form.hidden_tag() }}
+
+    {% for field in form if field.widget.input_type != 'hidden' %}
+        <div class="mb-3">
+            {{ field.label(class='form-label') }}
+            {{ field(class='form-control') }}        
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    
+</form>
+
+
+{% endblock %}
