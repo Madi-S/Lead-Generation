@@ -1,5 +1,8 @@
-from flask import render_template, redirect, url_for, request
-from app import app
+from flask import render_template, redirect, url_for, request, session
+from app import app, db, recaptcha
+from models import User
+
+from functools import wraps
 
 bad_user_agents = [
     'request',
@@ -9,6 +12,15 @@ bad_user_agents = [
     'crawl',
     'parser'
 ]
+def login_required(f):
+    @wraps(f)
+    def inner(*args, **kwargs):
+        if 'user_id' in session and User.get(session.get('user_id')).first():
+            return f(*args, **kwargs)
+
+        return redirect(url_for('register'))
+
+    return inner
 
 @app.before_request
 def check_user_agent():    
@@ -23,10 +35,17 @@ def check_user_agent():
 
 
 @app.route('/main')
+@app.route('/')
 def main():
     return render_template('index.html')
 
 
+@app.route('/register')
+def register():
+    # if recaptcha.verify():
+    return render_template('register.html')
+
+
 @app.errorhandler(404)
 def error(e):
-    return render_template('errors/not_found.html', error=e), 404
+    return render_template('error.html', error=e), 404
