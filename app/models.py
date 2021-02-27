@@ -9,7 +9,7 @@ class SecretMixin:
     def create(cls, pwd, **kwargs):
         encrypted = encrypt(pwd)
 
-        obj = cls(pwd=encrypted, **kwargs)
+        obj = cls(password=encrypted, **kwargs)
 
         db.session.add(obj)
         db.session.commit()
@@ -34,10 +34,10 @@ class SecretMixin:
 class User(SecretMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(200))
-    last_name = db.Column(db.String(200))
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
 
-    username = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(30), nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-    created = db.Column(db.DateTime, func.now())
+    created = db.Column(db.DateTime, default=func.now())
