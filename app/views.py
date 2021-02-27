@@ -12,6 +12,8 @@ bad_user_agents = [
     'crawl',
     'parser'
 ]
+
+
 def login_required(f):
     @wraps(f)
     def inner(*args, **kwargs):
@@ -21,6 +23,19 @@ def login_required(f):
         return redirect(url_for('register'))
 
     return inner
+
+
+def subscription_required(f):
+    @wraps(f)
+    def inner(*args, **kwargs):
+        # TODO: do some check stuff
+        if 'user_id' in session and User.get(session.get('user_id')).first():
+            return f(*args, **kwargs)
+
+        return redirect(url_for('subscriptions'))
+
+    return inner
+
 
 @app.before_request
 def check_user_agent():    
@@ -43,7 +58,28 @@ def main():
 @app.route('/register')
 def register():
     # if recaptcha.verify():
+    # session['user_id'] = user.id
     return render_template('register.html')
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    user_id = session.get('user_id')
+    return f'Hi User #{user_id}'
+
+
+@app.route('/generate')
+@login_required
+@subscription_required
+def generate_leads():
+    user_id = session.get('user_id')
+    return f'Hi User #{user_id}, wanna generate some leads?'
+
+
+@app.route('/subscriptions')
+def subscriptions():
+    return 'Subscriptions here'
 
 
 @app.errorhandler(404)
