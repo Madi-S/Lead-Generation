@@ -21,8 +21,8 @@ class Config(object):
     SESSION_TYPE = 'redis' # redis, memcached, filesystem or mongodb
     PERMANENT_SESSION_LIFETIME = timedelta(days=90)
 
-    RECAPTCHA_SITE_KEY = '6LfwKVwaAAAAAH_XIbUUxY3Z17GUvOWO9niVhQZm'
-    RECAPTCHA_SECRET_KEY = '6LfwKVwaAAAAAC5vUdbssnDBUOJOytC2VBYY-TLl'
+    RECAPTCHA_SITE_KEY = '6LeENmoaAAAAAH1dMElRkLRGE2UiSP-CK831656U'
+    RECAPTCHA_SECRET_KEY = '6LeENmoaAAAAANfgmGgA9Of_IPlJWtppMLMoMoV4'
     # RECAPTCHA_THEME = 'dark'
     # RECAPTCHA_TYPE = 'audio'
     # RECAPTCHA_SIZE = 'compact'
