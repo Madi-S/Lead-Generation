@@ -7,7 +7,11 @@
 {% endblock %}
 
 {% block content_title %}
-    Lead Generator main page
+    {% if session.get('username') %}    
+        Hi {{ session.get('username') }}
+    {% else %}
+        Lead Generator main page
+    {% endif %}
 {% endblock %}
 
 {% block content %}
