@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 
-
 {% block title %}
     Lead Generator registration page
 {% endblock %}
@@ -16,14 +15,24 @@
 <form action="{{ url_for('register') }}" method="POST">
     {{ form.hidden_tag() }}
 
-    {% for field in form if field.widget.input_type != 'hidden' %}
+    {% for field in form.visible_fields if field.widget.input_type != 'hidden' %}
         <div class="mb-3">
             {{ field.label(class='form-label') }}
             {{ field(class='form-control') }}        
         </div>
-    {% endfor %}
+    {% endfor %} 
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+
+    <div class="mb-3">
+        {{ form.accept_terms(class='form-check-input') }}
+        {{ form.accept_terms.label(class='form-check-label') }}
+    </div> 
+
+    {{ form.recaptcha }}
+
+    <br>
+
+    {{ form.submit(class='btn btn-primary') }}
     
 </form>
 
