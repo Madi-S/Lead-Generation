@@ -11,4 +11,24 @@
 {% endblock %}
 
 {% block content %}
+
+
+
+<form action="{{ url_for('login') }}" method="POST">
+    {{ form.hidden_tag() }}
+
+    {% for field in form.visible_fields if field.widget.input_type != 'hidden' %}
+        <div class="mb-3">
+            {{ field.label(class='form-label') }}
+            {{ field(class='form-control') }}        
+        </div>
+    {% endfor %}
+
+    {{ form.recaptcha }}
+    <br>
+
+    {{ form.submit(class='btn btn-primary') }}
+    
+</form>
+
 {% endblock %}
