@@ -10,11 +10,10 @@ def encrypt(password):
 
 
 if __name__ == '__main__':
-    pwd = 'qwerty123asdf'
+    pwd = 'Register123456'
     print('Password: {pwd}')
 
     for _ in range(10):
         encrypted = encrypt(pwd)
-        print('---------------------')
+        print('-----------------------------------------')
         print(f'Ecnrypted: {encrypted}, {len(encrypted)}')
-        
