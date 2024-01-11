@@ -1,0 +1,6 @@
+button_xpath = '//*[@class="iRxY3GoUYUY__button gm2-hairline-border section-action-chip-button"]'
+search_xpath = '//*[@role="gridcell"]'
+next_xpath = '//*[@id="n7lv7yjyC35__section-pagination-button-next"]'
+place_xpath = '//*[@class="section-hero-header-title-title GLOBAL__gm2-headline-5"]'
+result_xpath = '//*[@class="section-result-content"]'
+back_xpath = '//*[@class="section-back-to-list-button blue-link noprint"]'
