@@ -15,6 +15,15 @@ OR
 ```bash
 git clone https://github.com/Madi-S/Lead-Generation
 cd Lead-Generation
+cd archived
+cd google-maps
+python extractor.py
+```
+
+OR to use the previous archived version
+```bash
+git clone https://github.com/Madi-S/Lead-Generation
+cd Lead-Generation
 python run.py
 ```
 
