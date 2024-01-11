@@ -1,12 +1,14 @@
 # Lead-Generation
 
-The updated version of my outdated dirty clumsy and having shockingly high amount of stars repository on Python - https://github.com/Madi-S/Lead-Generation
+The updated version of my outdated dirty clumsy and having shockingly high amount of stars repository on Python
 
 # Installation
 
 ```bash
 pip install py-lead-generation
 ```
+
+[Pypi Link]("https://pypi.org/project/py-lead-generation")
 
 OR
 
