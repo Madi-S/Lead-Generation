@@ -8,7 +8,7 @@ The updated version of my outdated dirty clumsy and having shockingly high amoun
 pip install py-lead-generation
 ```
 
-[Pypi Link]("https://pypi.org/project/py-lead-generation")
+[Pypi Link](https://pypi.org/project/py-lead-generation)
 
 OR
 
