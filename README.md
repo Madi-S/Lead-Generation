@@ -1,6 +1,6 @@
 # Lead-Generation
 
-The updated version of my outdated dirty clumsy and having shockingly high amount of stars repository on Python
+The updated version of my outdated dirty clumsy with a shockingly high amount of stars repository on Python
 
 # Installation
 
@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
 # Expectations of this project:
 
-    - Parse Google Maps and Yelp for telephone number, email, address and other information by given keyword
-    - Somehow parse search results in Google Search for the same information using regex or other algorithm
-    - Export all parsed data to csv or excel
+    - Parse Google Maps and Yelp for telephone number, email, address, and other information by given keyword
+    - Somehow parse search results in Google Search for the same information using regex or other algorithms
+    - Export all parsed data to CSV or Excel
     - For parsed emails send a message, which will be prevented from going to spam
-    - For parsed telephone numbers send an SMS, which will b prevented from going to spam as well
+    - For parsed telephone numbers send an SMS, which will be prevented from going to spam as well
