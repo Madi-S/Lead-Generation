@@ -1,0 +1,15 @@
+body {
+  font-size: 25px;
+  text-align: center;
+}
+input,
+button {
+  padding: 7px;
+  font-size: 18px;
+  margin: 5px;
+}
+button {
+  visibility: visible;
+  border: 2px solid black;
+  font-weight: bold;
+}

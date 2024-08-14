@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lead-Generation Software</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Lead-Generation Software</h1>
+    <form id="leadForm" action="/run" method="post">
+      <label for="topic">Topic of Search:</label>
+      <input type="text" id="topic" name="topic" /><br /><br />
+      <label for="location">Location of Search:</label>
+      <input type="text" id="location" name="location" /><br /><br />
+      <button type="submit" id="submitBtn">Save and Submit</button>
+    </form>
+    <div id="output"></div>
+
+    <!--<script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0n3BazZPH85PIGXMFXXqe-SXsbZS-fsE&libraries=places&v=weekly"
+      defer
+    ></script>-->
+    <!--<script src="{{ url_for('static', filename='js/indexscript.js') }}"></script>-->
+  </body>
+</html>

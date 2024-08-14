@@ -1,103 +1,80 @@
 import time
+import sys
+import io
+import csv
 import asyncio
 from bs4 import BeautifulSoup
-
+from playwright.async_api import async_playwright
+from geopy.distance import geodesic
 from py_lead_generation.src.engines.base import BaseEngine
 from py_lead_generation.src.engines.abstract import AbstractEngine
 from py_lead_generation.src.misc.utils import get_coords_by_location
 
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 class GoogleMapsEngine(BaseEngine, AbstractEngine):
-    '''
-    `GoogleMapsEngine`
-
-    [EDITABLE] `SCROLL_TIME_DURATION_S` - scroll time duration to view the search results, preferably should be not less than 150, for testing purposes can be decreased
-
-    [EDITABLE] `SLEEP_PER_SCROLL_S` - amount of seconds to wait before each scroll of search results so that google maps does not output endless loading ~ aka simulate human-like activity, preferable should be not less than 5
-
-    Usage:
-
-    `engine = GoogleMapsEngine(*args, **kwargs)`
-
-    `await engine.run()`
-
-    `await engine.save_to_csv()`
-
-    `print(engine.entries)`
-    '''
-
     BASE_URL = 'https://www.google.com/maps/search/{query}/@{coords},{zoom}z/data=!3m1!4b1?entry=ttu'
     FIELD_NAMES = ['Title', 'Address', 'PhoneNumber', 'WebsiteURL']
     FILENAME = 'google_maps_leads.csv'
 
-    SLEEP_PER_SCROLL_S = 5
+    SLEEP_PER_SCROLL_S = 1
     SCROLL_TIME_DURATION_S = 200
 
-    def __init__(self, query: str, location: str, zoom: int | float = 12) -> None:
-        '''
-        `query: str` - what are you looking for? e.g., `gym`
-        `location: str` - where are you looking for that query? e.g., `Astana`
-        `zoom: int | float` - google maps zoom e.g., `8.75`
-
-        Creates `GoogleMapsEngine` instance
-        '''
+    def __init__(self, query: str, location: str, zoom: int | float = 12, radius: int = 50) -> None:
         self._entries = []
         self.zoom = zoom
         self.query = query
         self.location = location
+        self.radius = radius
         self.coords = get_coords_by_location(self.location)
         self.search_query = f'{self.query}%20{self.location}'
         self.url = self.BASE_URL.format(
-            query=self.search_query, coords=','.join(self.coords), zoom=self.zoom
+            query=self.search_query, coords=','.join(map(str, self.coords)), zoom=self.zoom
         )
+        self.browser = None
+        self.page = None
+
+    async def init_browser(self, hidden=True):
+        playwright = await async_playwright().start()
+        self.browser = await playwright.chromium.launch(headless=hidden)
+        self.page = await self.browser.new_page()
+
+    async def shut_browser(self):
+        if self.page:
+            await self.page.close()
+        if self.browser:
+            await self.browser.close()
+
+    async def search(self):
+        if not self.page:
+            raise ValueError('Initialize the browser before searching by `await *.init_browser()`')
+
+        await self.page.goto(self.url)
+        await self._get_search_results_urls()
 
     async def _get_search_results_urls(self) -> list[str]:
-        '''
-        Goes through the search results for `GoogleMapsEngine.SCROLL_TIME_DURATION_S` seconds
-
-        Waits for `GoogleMapsEngine.SLEEP_PER_SCROLL_S` seconds so that GoogleMaps will not output endless load, aka simulate human-like activity
-
-        Or scrapes the results urls, once the are no more results
-        '''
         async def hover_search_results() -> None:
-            '''
-            Hovers on leftbar, where search results are located
-
-            Needed so that scroll function is used properly - not on the map but on the search results div
-            '''
             leftbar = await self.page.query_selector('[role="main"]')
-            await leftbar.hover()
-            await asyncio.sleep(0.5)
+            if leftbar:
+                await leftbar.hover()
+                await asyncio.sleep(0.5)
 
         async def scroll_and_sleep(delta_y: int = 1000) -> None:
-            '''
-            `delta_y: int = 1000` pixel units to scroll down along y-axis
-
-            Scrolls down by `delta_y` and waits for `GoogleMapsEngine.SCROLL_TIME_DURATION_S` seconds
-            '''
             await self.page.mouse.wheel(0, delta_y)
             await asyncio.sleep(self.SLEEP_PER_SCROLL_S)
 
         async def end_locator_is_present() -> bool:
-            '''
-            Retunrs `end_locator` as boolean value, which correlates with the possible end of the search results
-
-            Once `end_locator` is Truthy, aka ElemenetHandle, it means that there is nothing more to scroll
-            '''
             end_locator = await self.page.query_selector('.m6QErb.tLjsW.eKbjU')
             return bool(end_locator)
 
         async def scrape_urls() -> list[str]:
-            '''
-            Should be called once page is being scrolled all the way down (`end_locator` found) or `GoogleMapsEngine.SCROLL_TIME_DURATION_S` duration limit is exceeded
-
-            Returns `list[str]` typed scraped urls list using query_selector
-            '''
             urls = []
             link_elements = await self.page.query_selector_all('a.hfpxzc')
             for link_element in link_elements:
                 url = await link_element.get_attribute('href')
-                urls.append(url)
+                coords = self._extract_coords_from_url(url)
+                if coords and self._is_within_bounds(coords):
+                    urls.append(url)
             return urls
 
         await hover_search_results()
@@ -113,25 +90,60 @@ class GoogleMapsEngine(BaseEngine, AbstractEngine):
         return urls
 
     def _parse_data_with_soup(self, html: str) -> list[str]:
-        '''
-        `html: str` - html representation of the page to parse
-
-        Returns `list[str]` typed parsed data - `[title, addr, phone, website]`
-        '''
         soup = BeautifulSoup(html, 'html.parser')
         data = []
 
-        title = soup.select_one('.DUwDvf.lfPIob').get_text()
-        data.append(title)
+        title = soup.select_one('.DUwDvf.lfPIob')
+        data.append(title.get_text() if title else 'No Info')
 
-        addr_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/place_gm_blue_24dp.png'
-        phone_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/phone_gm_blue_24dp.png'
-        website_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/public_gm_blue_24dp.png'
+        address = soup.select_one('[data-item-id="address"] .Io6YTe')
+        data.append(address.get_text() if address else 'No Info')
 
-        for img_src in (addr_img_src, phone_img_src, website_img_src):
-            img_element = soup.select_one(f'img[src="{img_src}"]')
-            info = img_element.parent.parent.parent.select_one('.Io6YTe').get_text() \
-                if img_element else '-'
-            data.append(info)
+        phone = soup.select_one('[data-tooltip="Copy phone number"] .Io6YTe')
+        data.append(phone.get_text() if phone else 'No Info')
+
+        website = soup.select_one('[data-item-id="authority"] .Io6YTe')
+        data.append(website.get_text() if website else 'No Info')
 
         return data
+
+    async def run(self):
+        if not self.page:
+            raise ValueError('Initialize the browser before running by `await *.init_browser()`')
+
+        await self.search()
+        urls = await self._get_search_results_urls()
+
+        with open(self.FILENAME, mode='a', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(self.FIELD_NAMES)
+
+            for url in urls:
+                await self.page.goto(url)
+                html = await self.page.content()
+                data = self._parse_data_with_soup(html)
+                print("Extracted ", [d.encode('utf-8', 'replace').decode('utf-8', 'replace') for d in data])
+                self._entries.append(data)
+                writer.writerow(data)
+
+    def save_to_csv(self, filename=None):
+        filename = filename or self.FILENAME
+        if not self._entries:
+            raise NotImplementedError("Entries are empty, call .run() method first to save them")
+
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(self.FIELD_NAMES)
+            writer.writerows(self._entries)
+
+    def _extract_coords_from_url(self, url: str) -> tuple[float, float]:
+        import re
+        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', url)
+        if match:
+            lat, lon = map(float, match.groups())
+            return lat, lon
+        return None
+
+    def _is_within_bounds(self, coords: tuple[float, float]) -> bool:
+        distance = geodesic(self.coords, coords).meters
+        return distance <= self.radius
