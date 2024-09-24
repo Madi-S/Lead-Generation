@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 with open('README.md', 'r') as f:
     long_description = f.read()
 
-VERSION = '0.3.0'
+VERSION = '1.0.1'
 
 setup(
     name='py_lead_generation',
