@@ -1,5 +1,6 @@
 import time
 import asyncio
+import re
 from bs4 import BeautifulSoup
 
 from py_lead_generation.src.engines.base import BaseEngine
@@ -114,24 +115,47 @@ class GoogleMapsEngine(BaseEngine, AbstractEngine):
 
     def _parse_data_with_soup(self, html: str) -> list[str]:
         '''
-        `html: str` - html representation of the page to parse
+        Parse HTML content to extract business details.
 
-        Returns `list[str]` typed parsed data - `[title, addr, phone, website]`
+        Parameters:
+        html (str): HTML representation of the page to parse.
+
+        Returns:
+            list[str]: A list containing parsed data in the order [title, address, phone, website]
         '''
         soup = BeautifulSoup(html, 'html.parser')
-        data = []
 
-        title = soup.select_one('.DUwDvf.lfPIob').get_text()
-        data.append(title)
+        selectors = {
+            'title': '.DUwDvf.lfPIob',
+            'address': '[data-item-id="address"]',
+            'phone_number': '[data-item-id^="phone:"]',
+            'website_url': '[data-item-id="authority"]'
+        }
 
-        addr_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/place_gm_blue_24dp.png'
-        phone_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/phone_gm_blue_24dp.png'
-        website_img_src = '//www.gstatic.com/images/icons/material/system_gm/2x/public_gm_blue_24dp.png'
+        def extract_text(selector: str, default: str = '', cleaner: callable = None) -> str:
+            element = soup.select_one(selector)
+            text = element.get_text() if element else default
+            return cleaner(text) if cleaner else text
 
-        for img_src in (addr_img_src, phone_img_src, website_img_src):
-            img_element = soup.select_one(f'img[src="{img_src}"]')
-            info = img_element.parent.parent.parent.select_one('.Io6YTe').get_text() \
-                if img_element else '-'
-            data.append(info)
+        # Cleaners
+        def clean_phone_number(text: str) -> str:
+            return re.sub(r'\D', '', text)
+        
+        def clean_address(text: str) -> str:
+            return text.replace('', '').strip()
+        
+        def clean_website_url(text: str) -> str:
+            return text.replace('', '').strip()
+        
+        cleaners = {
+            'phone_number': clean_phone_number,
+            'address': clean_address,
+            'website_url': clean_website_url
+        }
 
-        return data
+        # Parsing and cleaning
+        parsed_data = [
+            extract_text(selectors[key], cleaner=cleaners.get(key)) for key in selectors
+        ]
+
+        return parsed_data
