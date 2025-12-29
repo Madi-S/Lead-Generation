@@ -4,27 +4,30 @@ The updated version of my outdated dirty clumsy with a shockingly high amount of
 
 # Installation
 
+Using pip (recommended)
+
 ```bash
 pip install py-lead-generation
 ```
 
 [Pypi Link](https://pypi.org/project/py-lead-generation)
 
-OR
+OR using from source code (not recommended)
 
 ```bash
 git clone https://github.com/Madi-S/Lead-Generation
 cd Lead-Generation
-cd archived
-cd google-maps
-python extractor.py
+# Edit run.py for your needs
+python run.py
 ```
 
 OR to use the previous archived version
 ```bash
 git clone https://github.com/Madi-S/Lead-Generation
 cd Lead-Generation
-python run.py
+cd archived
+cd google-maps
+python extractor.py
 ```
 
 # Quickstart
