@@ -2,6 +2,14 @@
 
 The updated version of my outdated dirty clumsy with a shockingly high amount of stars repository on Python
 
+# TODO:
+
+- Add tests (pywright, pytest)
+- Add GUI
+- Large-scale lead generation (bypass blockers, etc)
+- Add more lead sources
+- N&N integration?
+
 # Installation
 
 Using pip (recommended)
