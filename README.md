@@ -5,10 +5,12 @@ The updated version of my outdated dirty clumsy with a shockingly high amount of
 # TODO:
 
 - Add tests (pywright, pytest)
-- Add GUI
-- Large-scale lead generation (bypass blockers, etc)
-- Add more lead sources
-- N&N integration?
+- Clean up the package, refactor, providy sync/async implementations
+- Simple automated emailing system via gmail smtp (subject and body templates), for phone numbers - something else (cold outreach), for social media (instagram, facebook) - something else too
+- Add GUI (tkinter most likely) and CLI options for running
+- Large-scale lead generation (bypass blockers, api errors, auth, etc - legally and for educational/scientific purposes btw)
+- Add more lead sources (e.g., 2gis)
+- N&N integration (plugin)?
 
 # Installation
 
