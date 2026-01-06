@@ -6,7 +6,7 @@ The updated version of my outdated dirty clumsy package (collection of scripts) 
 
 - Add tests (pywright, pytest)
 - Clean up the package, refactor, providy sync/async implementations
-- Simple automated emailing system via gmail smtp (subject and body templates), for phone numbers - something else (cold outreach), for social media (instagram, facebook) - something else too
+- Simple automated emailing system via gmail smtp (subject and body templates), pephaps Twilio integration later, for phone numbers - something else (cold outreach), for social media (instagram, facebook) - something else too
 - Add GUI (tkinter most likely) and CLI options for running
 - Large-scale lead generation (bypass blockers, api errors, auth, etc - legally and for educational/scientific purposes btw)
 - Add more lead sources (e.g., 2gis)
