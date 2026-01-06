@@ -1,6 +1,6 @@
 # Lead-Generation
 
-The updated version of my outdated dirty clumsy with a shockingly high amount of stars repository on Python
+The updated version of my outdated dirty clumsy package (collection of scripts) for lead generation
 
 # TODO:
 
