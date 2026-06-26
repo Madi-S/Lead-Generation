@@ -1,9 +1,12 @@
 # Lead-Generation
 
-🚀 Sponsored by CoreClaw
-Turn Google Maps Data Into Real Business Leads.Find websites, emails, and business contacts from Google Maps in minutes.
+**🚀 Sponsored by CoreClaw**
 
-👉Get 1,000 free leads →（Product URL:https://www.coreclaw.com/?utm_source=github&utm_medium=referral&utm_campaign=Madi-S&utm_term=&utm_id=Madi-S）
+Turn Google Maps Data Into Real Business Leads.
+
+Find websites, emails, and business contacts from Google Maps in minutes.
+
+👉Get 1,000 free leads → [here](https://www.coreclaw.com/?utm_source=github&utm_medium=referral&utm_campaign=Madi-S&utm_term=&utm_id=Madi-S)
 
 ![App screenshot](assets/coreclaw.png)
 
