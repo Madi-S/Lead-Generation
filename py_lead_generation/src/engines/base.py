@@ -1,8 +1,9 @@
 import asyncio
+
 from playwright.async_api import Playwright, async_playwright
 
-from py_lead_generation.src.misc.writer import CsvWriter
 from py_lead_generation.src.engines.playwright_config import PlaywrightEngineConfig
+from py_lead_generation.src.misc.writer import CsvWriter
 
 
 class BaseEngine(PlaywrightEngineConfig):
@@ -22,7 +23,7 @@ class BaseEngine(PlaywrightEngineConfig):
 
         Assigns collected results to `.entries`
 
-        To save the results call `.save_to_csv()` method after       
+        To save the results call `.save_to_csv()` method after
         '''
         async with async_playwright() as playwright:
             self.playwright: Playwright = playwright
@@ -35,7 +36,7 @@ class BaseEngine(PlaywrightEngineConfig):
     def save_to_csv(self, filename: str = None) -> None:
         '''
         `filename: str = None` - optional parameter, by default uses `self.FILENAME`
-        
+
         If file with such name already exists, it will not overwrite it but append newly found entries to existing ones
 
         If file with such name does not exist, it will create a new csv file with predetermined fieldnames
@@ -97,7 +98,7 @@ class BaseEngine(PlaywrightEngineConfig):
             await self._open_url_and_wait(url, 1.5)
             html = await self.page.content()
             data = self._parse_data_with_soup(html)
-            entry = dict(zip(self.FIELD_NAMES, data))
+            entry = dict(zip(self.FIELD_NAMES, data, strict=False))
             entries.append(entry)
 
         return entries

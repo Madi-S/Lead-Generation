@@ -1,82 +1,175 @@
-# Lead-Generation
+# py-lead-generation
 
-The updated version of my outdated dirty clumsy package (collection of scripts) for lead generation
+A Python package for lead generation using web scraping. Collect business leads from Google Maps, Yelp, and more.
 
-# TODO:
+[![CI](https://github.com/Madi-S/Lead-Generation/actions/workflows/ci.yml/badge.svg)](https://github.com/Madi-S/Lead-Generation/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/py-lead-generation)](https://pypi.org/project/py-lead-generation/)
+[![Python](https://img.shields.io/pypi/pyversions/py-lead-generation)](https://pypi.org/project/py-lead-generation/)
 
-- Add pyproject.toml, pre-commit hooks, use poetry or uv (just add musthaves)
-- Add MCP plugin?
-- Add tests (pywright, pytest)
-- Clean up the package, refactor, providy sync/async implementations
-- Implement simple automated emailing system via gmail smtp (subject and body templates), pephaps Twilio integration later, for phone numbers - something else (cold outreach), for social media (instagram, facebook) - something else too
-- Add GUI (tkinter most likely) and CLI options for running
-- Thnk of large/medium-scale lead generation (bypass blockers, api errors, auth, etc - legally and for educational/scientific purposes btw)
-- Add more lead sources (e.g., 2gis)
-- Add N&N integration (plugin)?
+## Features
 
-# Installation
+- 🔍 **Multiple Sources**: Google Maps, Yelp, 2GIS (coming soon)
+- 📧 **Email Outreach**: Gmail SMTP integration with templates
+- 🤖 **MCP Server**: Model Context Protocol for AI assistant integration
+- ��️ **GUI Application**: Tkinter-based desktop app
+- 📊 **CSV Export**: Export leads to CSV files
+- ⚡ **Async-First**: Built with async/await for efficient scraping
 
-Using pip (recommended)
+## Installation
 
 ```bash
 pip install py-lead-generation
 ```
 
-[Pypi Link](https://pypi.org/project/py-lead-generation)
-
-OR using from source code (not recommended)
+Or install from source:
 
 ```bash
 git clone https://github.com/Madi-S/Lead-Generation
 cd Lead-Generation
-# Edit run.py for your needs
-python run.py
+pip install -e ".[dev]"
+playwright install chromium
 ```
 
-OR to use the previous archived version
-```bash
-git clone https://github.com/Madi-S/Lead-Generation
-cd Lead-Generation
-cd archived
-cd google-maps
-python extractor.py
-```
+## Quickstart
 
-# Quickstart
+### Python API
 
 ```python
 import asyncio
 from py_lead_generation import GoogleMapsEngine, YelpEngine
 
-
 async def main() -> None:
-    q = input('Enter your search query: ').strip() or 'Barbershop'
-    addr = input('Enter the location you would like to search in: ').strip() \
-        or 'Paris'
-    zoom = float(input('[Optional] Enter google maps zoom: ').strip() or 12)
-
-    engine = GoogleMapsEngine(q, addr, zoom)
+    # Search Google Maps
+    engine = GoogleMapsEngine("restaurants", "Paris", zoom=12)
     await engine.run()
-    engine.save_to_csv()
+    engine.save_to_csv("paris_restaurants.csv")
+    print(f"Found {len(engine.entries)} leads")
 
-    engine = YelpEngine('Pizza', 'Mexico, Pampanga, Philippines')
+    # Search Yelp
+    engine = YelpEngine("Pizza", "New York")
     await engine.run()
-    engine.save_to_csv('pizza_leads.csv')
+    engine.save_to_csv("pizza_leads.csv")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-# Current functionality
+### GUI Application
 
-    - Parse Google Maps
-    - Parse Yelp
-    - Export collected data to a CSV file
+Launch the desktop application:
 
-# Expectations of this project:
+```bash
+lead-gen-gui
+```
 
-    - Parse Google Maps and Yelp for telephone number, email, address, and other information by given keyword
-    - Somehow parse search results in Google Search for the same information using regex or other algorithms
-    - Export all parsed data to CSV or Excel
-    - For parsed emails send a message, which will be prevented from going to spam
-    - For parsed telephone numbers send an SMS, which will be prevented from going to spam as well
+Or from Python:
+
+```python
+from py_lead_generation.src.gui import LeadGenerationApp
+
+app = LeadGenerationApp()
+app.run()
+```
+
+### MCP Server
+
+Start the MCP server for AI assistant integration:
+
+```bash
+lead-gen-mcp
+```
+
+Available tools:
+- `search_leads`: Search for business leads
+- `export_leads`: Export leads to CSV
+- `list_sources`: List available lead sources
+
+### Email Outreach
+
+Send personalized cold emails to collected leads:
+
+```python
+import asyncio
+from py_lead_generation.src.email import (
+    SMTPConfig,
+    EmailTemplate,
+    GmailSMTPSender,
+)
+
+async def send_emails():
+    # Configure SMTP (use environment variables in production)
+    config = SMTPConfig.from_env()
+    sender = GmailSMTPSender(config)
+
+    # Create email template
+    template = EmailTemplate(
+        subject="Partnership Opportunity - {title}",
+        body="Dear {title},\n\nI found your business at {address}..."
+    )
+
+    # Send to leads
+    leads = [
+        {"title": "Acme Inc", "email": "contact@acme.com", "address": "123 Main St"},
+    ]
+    results = await sender.send_bulk(leads, template)
+    print(f"Sent {sum(results)} emails successfully")
+
+asyncio.run(send_emails())
+```
+
+## Environment Variables
+
+Create a `.env` file (see `.env.example`):
+
+```bash
+# Gmail SMTP (for email outreach)
+GMAIL_ADDRESS=your.email@gmail.com
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+
+# MCP Server (optional)
+MCP_HOST=localhost
+MCP_PORT=8080
+```
+
+## Available Engines
+
+| Engine | Source | Status |
+|--------|--------|--------|
+| `GoogleMapsEngine` | Google Maps | ✅ Working |
+| `YelpEngine` | Yelp | ✅ Working |
+| `TwoGisEngine` | 2GIS | 🚧 Interface only |
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/Madi-S/Lead-Generation
+cd Lead-Generation
+
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest tests/ -v
+
+# Run linting
+ruff check .
+mypy py_lead_generation/
+```
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

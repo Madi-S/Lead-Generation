@@ -1,4 +1,4 @@
-from playwright.async_api import Browser, Page, BrowserType
+from playwright.async_api import Browser, BrowserType, Page
 
 
 class PlaywrightEngineConfig:

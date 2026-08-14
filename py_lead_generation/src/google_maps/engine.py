@@ -1,10 +1,11 @@
-import time
 import asyncio
 import re
+import time
+
 from bs4 import BeautifulSoup
 
-from py_lead_generation.src.engines.base import BaseEngine
 from py_lead_generation.src.engines.abstract import AbstractEngine
+from py_lead_generation.src.engines.base import BaseEngine
 from py_lead_generation.src.misc.utils import get_coords_by_location
 
 
@@ -140,13 +141,13 @@ class GoogleMapsEngine(BaseEngine, AbstractEngine):
         # Cleaners
         def clean_phone_number(text: str) -> str:
             return re.sub(r'\D', '', text)
-        
+
         def clean_address(text: str) -> str:
             return text.replace('', '').strip()
-        
+
         def clean_website_url(text: str) -> str:
             return text.replace('', '').strip()
-        
+
         cleaners = {
             'phone_number': clean_phone_number,
             'address': clean_address,

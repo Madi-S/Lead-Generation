@@ -167,3 +167,8 @@ cython_debug/
 
 # Pypi
 .pypirc
+
+# specify (copilot, claude)
+.github/prompts
+.github/agents
+.specify
