@@ -15,11 +15,16 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-from typing import Any
 
 from mcp.server import Server
+from mcp.server.lowlevel.server import ServerRequestContext
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.types import (
+    CallToolRequestParams,
+    CallToolResult,
+    ListToolsResult,
+    PaginatedRequestParams,
+)
 
 from py_lead_generation.src.mcp.tools import call_tool, get_tools
 
@@ -30,19 +35,24 @@ def create_server() -> Server:
     Returns:
         Configured MCP Server instance
     """
-    server = Server("lead-generation")
-
-    @server.list_tools()
-    async def list_tools() -> list[Tool]:
+    async def list_tools(
+        _context: ServerRequestContext, _params: PaginatedRequestParams | None
+    ) -> ListToolsResult:
         """List available lead generation tools."""
-        return get_tools()
+        return ListToolsResult(tools=get_tools())
 
-    @server.call_tool()
     async def handle_call_tool(
-        name: str, arguments: dict[str, Any] | None
-    ) -> list[TextContent]:
+        _context: ServerRequestContext, params: CallToolRequestParams
+    ) -> CallToolResult:
         """Handle tool calls from MCP clients."""
-        return await call_tool(name, arguments or {})
+        content = await call_tool(params.name, params.arguments or {})
+        return CallToolResult(content=content)
+
+    server = Server(
+        "lead-generation",
+        on_list_tools=list_tools,
+        on_call_tool=handle_call_tool,
+    )
 
     return server
 
