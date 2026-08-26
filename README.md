@@ -14,7 +14,7 @@ The updated version of my outdated dirty clumsy package (collection of scripts) 
 
 # TODO:
 
-- Approach Google Maps Zoom level, splitting area into chunks
+- Approach Google Maps Zoom level, splitting area into chunks (map grid)
 - Add pyproject.toml, pre-commit hooks, use poetry or uv (just add musthaves)
 - Add MCP plugin?
 - Add tests (pywright, pytest)
