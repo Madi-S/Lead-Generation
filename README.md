@@ -1,29 +1,6 @@
 # Lead-Generation
 
-**🚀 Sponsored by CoreClaw**
-
-Turn Google Maps Data Into Real Business Leads.
-
-Find websites, emails, and business contacts from Google Maps in minutes.
-
-👉Get 1,000 free leads → [here](https://www.coreclaw.com/?utm_source=github&utm_medium=referral&utm_campaign=Madi-S&utm_term=&utm_id=Madi-S)
-
-![App screenshot](assets/coreclaw.png)
-
-The updated version of my outdated dirty clumsy package (collection of scripts) for lead generation
-
-# TODO:
-
-- Approach Google Maps Zoom level, splitting area into chunks (map grid)
-- Add pyproject.toml, pre-commit hooks, use poetry or uv (just add musthaves)
-- Add MCP plugin?
-- Add tests (pywright, pytest)
-- Clean up the package, refactor, providy sync/async implementations
-- Implement simple automated emailing system via gmail smtp (subject and body templates), pephaps Twilio integration later, for phone numbers - something else (cold outreach), for social media (instagram, facebook) - something else too
-- Add GUI (tkinter most likely) and CLI options for running
-- Thnk of large/medium-scale lead generation (bypass blockers, api errors, auth, etc - legally and for educational/scientific purposes btw)
-- Add more lead sources (e.g., 2gis)
-- Add N&N integration (plugin)?
+The updated version (and sort of abandoned) of my outdated dirty clumsy package (collection of scripts) for lead generation
 
 # Installation
 
